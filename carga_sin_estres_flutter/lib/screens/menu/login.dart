@@ -8,18 +8,17 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _isPasswordVisible = false; // Controla la visibilidad de la contraseña
+  bool _isPasswordVisible = false;
   final TextEditingController _passwordController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    // No se necesita un listener en este caso, manejaremos el estado directamente.
   }
 
   @override
   void dispose() {
-    _passwordController.dispose(); // Liberar el controlador al salir
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -30,32 +29,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF0F2F5),
-      resizeToAvoidBottomInset:
-          true, // Asegura que el contenido se reajuste cuando el teclado aparece
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              // Imagen wave superior
               Image.asset(
                 'assets/background/wave_up_1.png',
                 width: screenWidth,
                 fit: BoxFit.cover,
                 height: screenWidth * 0.5,
               ),
-              // Contenido principal centrado
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center, // Centrando el contenido
-                  crossAxisAlignment:
-                      CrossAxisAlignment.center, // Centrado horizontalmente
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Align(
-                      alignment: Alignment
-                          .centerLeft, // Alineación del texto a la izquierda
+                      alignment: Alignment.centerLeft,
                       child: RichText(
                         textAlign: TextAlign.left,
                         text: const TextSpan(
@@ -69,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             TextSpan(
                               text: 'Sesión',
                               style: TextStyle(
-                                color: Color(0xFFEBA50A), // Color para "Sesión"
+                                color: Color(0xFFEBA50A),
                               ),
                             ),
                           ],
@@ -81,8 +74,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: inputWidth,
                       child: const TextField(
                         decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.email_outlined,
-                              color: Colors.grey), // Solo el borde del ícono
+                          prefixIcon:
+                              Icon(Icons.email_outlined, color: Colors.grey),
                           labelText: 'Correo electrónico',
                           border: OutlineInputBorder(),
                         ),
@@ -93,8 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: inputWidth,
                       child: TextField(
                         controller: _passwordController,
-                        obscureText:
-                            !_isPasswordVisible, // Mostrar u ocultar contraseña
+                        obscureText: !_isPasswordVisible,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(
                             Icons.lock_outline,
@@ -118,7 +110,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           border: const OutlineInputBorder(),
                         ),
                         onChanged: (value) {
-                          // Redibuja cuando el texto cambie para mostrar u ocultar el ícono
                           setState(() {});
                         },
                       ),
@@ -152,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text("¿No tienes una cuenta?"),
-                        const SizedBox(width: 10), // Espacio entre textos
+                        const SizedBox(width: 10),
                         GestureDetector(
                           onTap: () {
                             // Navegación a la pantalla de registro
