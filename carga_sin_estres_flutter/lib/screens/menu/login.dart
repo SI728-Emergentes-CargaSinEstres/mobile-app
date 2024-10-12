@@ -1,3 +1,4 @@
+import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -70,50 +71,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 55),
-                    SizedBox(
-                      width: inputWidth,
-                      child: const TextField(
-                        decoration: InputDecoration(
-                          prefixIcon:
-                              Icon(Icons.email_outlined, color: Colors.grey),
-                          labelText: 'Correo electrónico',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
+                    _buildFormInput(
+                        inputWidth, 'Correo Electrónico', Icons.email),
                     const SizedBox(height: 35),
-                    SizedBox(
-                      width: inputWidth,
-                      child: TextField(
-                        controller: _passwordController,
-                        obscureText: !_isPasswordVisible,
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(
-                            Icons.lock_outline,
-                            color: Colors.grey,
-                          ),
-                          suffixIcon: _passwordController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: Icon(
-                                    _isPasswordVisible
-                                        ? Icons.visibility_off
-                                        : Icons.visibility,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _isPasswordVisible = !_isPasswordVisible;
-                                    });
-                                  },
-                                )
-                              : null,
-                          labelText: 'Contraseña',
-                          border: const OutlineInputBorder(),
-                        ),
-                        onChanged: (value) {
-                          setState(() {});
-                        },
-                      ),
-                    ),
+                    _buildPasswordInput(inputWidth, 'Contraseña'),
                     const SizedBox(height: 45),
                     SizedBox(
                       width: inputWidth,
@@ -164,6 +125,102 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildFormInput(double inputWidth, String labelText, IconData icon) {
+    return SizedBox(
+      width: inputWidth,
+      child: TextField(
+        decoration: InputDecoration(
+          prefixIcon: Icon(
+            icon,
+            color: AppTheme.secondaryGray,
+          ),
+          labelText: labelText,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+              color: AppTheme.secondaryGray2,
+              width: 1.0,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+              color: AppTheme.secondaryGray2,
+              width: 1.0,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+              color: AppTheme.secondaryGray2,
+              width: 1.0,
+            ),
+          ),
+          filled: true,
+          fillColor: const Color.fromARGB(255, 255, 255, 255),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordInput(double inputWidth, String labelText) {
+    return SizedBox(
+      width: inputWidth,
+      child: TextField(
+        controller: _passwordController,
+        obscureText: !_isPasswordVisible,
+        decoration: InputDecoration(
+          prefixIcon: const Icon(
+            Icons.lock_outline,
+            color: AppTheme.secondaryGray,
+          ),
+          suffixIcon: _passwordController.text.isNotEmpty
+              ? IconButton(
+                  icon: Icon(
+                    _isPasswordVisible
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    color: AppTheme.secondaryGray,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                )
+              : null,
+          labelText: labelText,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+              color: AppTheme.secondaryGray2,
+              width: 1.0,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+              color: AppTheme.secondaryGray2,
+              width: 1.0,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(
+              color: AppTheme.secondaryGray2,
+              width: 1.0,
+            ),
+          ),
+          filled: true,
+          fillColor: const Color.fromARGB(255, 255, 255, 255),
+        ),
+        onChanged: (value) {
+          setState(() {});
+        },
       ),
     );
   }
