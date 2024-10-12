@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^2.0.10+1
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
@@ -23,3 +24,4 @@ flutter:
     - assets/background/wave_down.png
     - assets/moving_images/moving_splash_screen.png
     - assets/background/wave_up_1.png
+    - assets/background/wave_up_2.png
