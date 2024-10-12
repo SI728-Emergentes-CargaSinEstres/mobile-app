@@ -1,4 +1,5 @@
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
+import 'package:carga_sin_estres_flutter/widgets/quick_load.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -32,8 +33,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      _buildUserWave('Javier'),
-                      const SizedBox(height: 55),
+                      _buildUserWave(
+                          'Javier'), // TODO: Replace with user's name
+                      const SizedBox(height: 30),
+                      const QuickLoad(),
                     ],
                   ),
                 ),
