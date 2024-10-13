@@ -37,11 +37,39 @@ class CompanyCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    children: List.generate(
-                      calificacion,
-                      (index) => const Icon(Icons.star,
-                          color: Colors.amber, size: 16.0),
-                    ),
+                    children: [
+                      Row(
+                        children: List.generate(
+                          calificacion,
+                          (index) => const Icon(
+                            Icons.star,
+                            color: Colors.amber,
+                            size: 16.0,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: const BoxDecoration(
+                          color: Colors.orangeAccent,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(0),
+                            bottomLeft: Radius.circular(10),
+                            bottomRight: Radius.circular(0),
+                          ),
+                        ),
+                        child: Text(
+                          tipoServicio,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8.0),
                   Text(
@@ -62,27 +90,6 @@ class CompanyCard extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                const SizedBox(height: 8),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.orangeAccent,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    tipoServicio,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
             ),
           ],
         ),
