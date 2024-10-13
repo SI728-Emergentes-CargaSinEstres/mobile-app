@@ -1,4 +1,5 @@
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
+import 'package:carga_sin_estres_flutter/widgets/company_search.dart';
 import 'package:carga_sin_estres_flutter/widgets/quick_load.dart';
 import 'package:flutter/material.dart';
 
@@ -20,27 +21,28 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Image.asset(
-                  'assets/background/wave_up_3.png',
-                  width: screenWidth,
-                  fit: BoxFit.cover,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Image.asset(
+                'assets/background/wave_up_3.png',
+                width: screenWidth,
+                fit: BoxFit.cover,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    _buildUserWave('Javier'),
+                    const SizedBox(height: 30),
+                    const QuickLoad(),
+                    const SizedBox(height: 30),
+                    const CompanySearch(),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      _buildUserWave(
-                          'Javier'), // TODO: Replace with user's name
-                      const SizedBox(height: 30),
-                      const QuickLoad(),
-                    ],
-                  ),
-                ),
-              ]),
+              ),
+            ],
+          ),
         ),
       ),
     );

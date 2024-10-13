@@ -7,4 +7,5 @@ class AppTheme {
   static const Color secondaryGray = Color(0xFF3F3F3F);
   static const Color secondaryRed = Color(0xFFD93F21);
   static const Color secondaryGray2 = Color(0xFFD9D9D9);
+  static const Color secondaryGray3 = Color(0xFFB1B1B1);
 }
