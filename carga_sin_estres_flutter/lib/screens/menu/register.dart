@@ -83,7 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       width: inputWidth,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/home');
+                          Navigator.pushNamed(context, '/login');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFF5757),

@@ -1,3 +1,4 @@
+import 'package:carga_sin_estres_flutter/screens/menu/home.dart';
 import 'package:carga_sin_estres_flutter/screens/menu/login.dart';
 import 'package:carga_sin_estres_flutter/screens/menu/register.dart';
 import 'package:carga_sin_estres_flutter/screens/menu/splash_screen.dart';
@@ -31,6 +32,9 @@ class MainApp extends StatelessWidget {
             break;
           case '/register':
             builder = (BuildContext context) => const RegisterScreen();
+            break;
+          case '/home':
+            builder = (BuildContext context) => const HomeScreen();
             break;
           default:
             throw Exception('Invalid route: ${settings.name}');
