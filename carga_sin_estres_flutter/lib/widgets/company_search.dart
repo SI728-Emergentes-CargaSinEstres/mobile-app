@@ -1,9 +1,56 @@
+import 'package:carga_sin_estres_flutter/models/company.dart';
+import 'package:carga_sin_estres_flutter/models/services.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:carga_sin_estres_flutter/widgets/company_card.dart';
 import 'package:flutter/material.dart';
 
-class CompanySearch extends StatelessWidget {
+class CompanySearch extends StatefulWidget {
   const CompanySearch({super.key});
+
+  @override
+  State<CompanySearch> createState() => _CompanySearchState();
+}
+
+class _CompanySearchState extends State<CompanySearch> {
+  List<Company> companies = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCompanies();
+  }
+
+  void _loadCompanies() {
+    // TODO: Replace this with actual data fetching logic.
+    companies = [
+      Company(
+        id: 1,
+        name: "Company A",
+        tic: "TIC001",
+        address: "123 Main St",
+        email: "contact@companya.com",
+        phoneNumber: "123456789",
+        description: "Description of Company A",
+        logo: "assets/moving_images/moving_truck.png",
+        services: [],
+        averageRating: 4,
+        hasMembership: true,
+      ),
+      Company(
+        id: 2,
+        name: "Company B",
+        tic: "TIC002",
+        address: "456 Elm St",
+        email: "contact@companyb.com",
+        phoneNumber: "987-654-3210",
+        description: "Description of Company B",
+        logo: "assets/moving_images/moving_truck.png",
+        services: [],
+        averageRating: 5,
+        hasMembership: false,
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,32 +133,9 @@ class CompanySearch extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 10),
-        // Usar Column para apilar los Company Cards
-        const Column(
-          children: [
-            CompanyCard(
-              logo: 'assets/moving_images/moving_truck.png',
-              nombre: 'Romabe transporte',
-              ubicacion: 'San Miguel',
-              calificacion: 4,
-              tipoServicio: 'Carga',
-            ),
-            CompanyCard(
-              logo: 'assets/moving_images/moving_truck.png',
-              nombre: 'J&G Transporte y mudanzas',
-              ubicacion: 'Monterrico',
-              calificacion: 3,
-              tipoServicio: 'Mudanza',
-            ),
-            CompanyCard(
-              logo: 'assets/moving_images/moving_truck.png',
-              nombre: 'Transporte y mudanzas Rapi2',
-              ubicacion: 'San Isidro',
-              calificacion: 1,
-              tipoServicio: 'Mudanza',
-            ),
-          ],
-        ),
+        ...companies.map((company) {
+          return CompanyCard(company: company);
+        }),
       ],
     );
   }
