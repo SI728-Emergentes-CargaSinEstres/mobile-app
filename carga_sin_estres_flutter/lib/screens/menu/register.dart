@@ -1,5 +1,7 @@
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:carga_sin_estres_flutter/widgets/date_of_birth_input.dart';
+import 'package:carga_sin_estres_flutter/widgets/form_input.dart';
+import 'package:carga_sin_estres_flutter/widgets/password_input.dart';
 import 'package:flutter/material.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -10,18 +12,9 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  bool _isPasswordVisible = false;
-  final TextEditingController _passwordController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    _passwordController.dispose();
-    super.dispose();
   }
 
   @override
@@ -65,19 +58,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    _buildFormInput(inputWidth, 'Nombres', Icons.person),
+                    FormInput(
+                        inputWidth: inputWidth,
+                        labelText: 'Nombres',
+                        icon: Icons.person),
                     const SizedBox(height: 10),
-                    _buildFormInput(
-                        inputWidth, 'Número de celular', Icons.phone),
+                    FormInput(
+                        inputWidth: inputWidth,
+                        labelText: 'Número de celular',
+                        icon: Icons.phone),
                     const SizedBox(height: 10),
                     DateOfBirthInput(
                         inputWidth: inputWidth,
                         labelText: 'Fecha de nacimiento'),
                     const SizedBox(height: 10),
-                    _buildFormInput(
-                        inputWidth, 'Correo electrónico', Icons.email),
-                    const SizedBox(height: 35),
-                    _buildPasswordInput(inputWidth, 'Contraseña'),
+                    FormInput(
+                        inputWidth: inputWidth,
+                        labelText: 'Correo electrónico',
+                        icon: Icons.email),
+                    const SizedBox(height: 10),
+                    PasswordInput(
+                        inputWidth: inputWidth, labelText: 'Contraseña'),
                     const SizedBox(height: 45),
                     SizedBox(
                       width: inputWidth,
@@ -128,102 +129,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildFormInput(double inputWidth, String labelText, IconData icon) {
-    return SizedBox(
-      width: inputWidth,
-      child: TextField(
-        decoration: InputDecoration(
-          prefixIcon: Icon(
-            icon,
-            color: AppTheme.secondaryGray,
-          ),
-          labelText: labelText,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: AppTheme.secondaryGray2,
-              width: 1.0,
-            ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: AppTheme.secondaryGray2,
-              width: 1.0,
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: AppTheme.secondaryGray2,
-              width: 1.0,
-            ),
-          ),
-          filled: true,
-          fillColor: const Color.fromARGB(255, 255, 255, 255),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPasswordInput(double inputWidth, String labelText) {
-    return SizedBox(
-      width: inputWidth,
-      child: TextField(
-        controller: _passwordController,
-        obscureText: !_isPasswordVisible,
-        decoration: InputDecoration(
-          prefixIcon: const Icon(
-            Icons.lock_outline,
-            color: AppTheme.secondaryGray,
-          ),
-          suffixIcon: _passwordController.text.isNotEmpty
-              ? IconButton(
-                  icon: Icon(
-                    _isPasswordVisible
-                        ? Icons.visibility_off
-                        : Icons.visibility,
-                    color: AppTheme.secondaryGray,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isPasswordVisible = !_isPasswordVisible;
-                    });
-                  },
-                )
-              : null,
-          labelText: labelText,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: AppTheme.secondaryGray2,
-              width: 1.0,
-            ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: AppTheme.secondaryGray2,
-              width: 1.0,
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: AppTheme.secondaryGray2,
-              width: 1.0,
-            ),
-          ),
-          filled: true,
-          fillColor: const Color.fromARGB(255, 255, 255, 255),
-        ),
-        onChanged: (value) {
-          setState(() {});
-        },
       ),
     );
   }
