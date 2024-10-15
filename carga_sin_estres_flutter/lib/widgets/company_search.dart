@@ -1,5 +1,4 @@
 import 'package:carga_sin_estres_flutter/models/company.dart';
-import 'package:carga_sin_estres_flutter/models/services.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:carga_sin_estres_flutter/widgets/company_card.dart';
 import 'package:flutter/material.dart';

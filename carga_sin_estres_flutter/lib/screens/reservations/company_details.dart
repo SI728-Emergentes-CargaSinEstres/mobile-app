@@ -1,4 +1,5 @@
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
+import 'package:carga_sin_estres_flutter/widgets/custom_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:carga_sin_estres_flutter/models/company.dart';
 
@@ -148,6 +149,7 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }
 
