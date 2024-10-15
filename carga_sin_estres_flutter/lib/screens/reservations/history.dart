@@ -189,9 +189,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildActionButton(Icons.chat, 'Ver chat'),
-                _buildActionButton(Icons.details, 'Ver detalles'),
-                _buildActionButton(Icons.assignment, 'Contrato'),
+                _buildActionButton(Icons.chat, 'Ver chat', () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ChatScreen(),
+                    ),
+                  );
+                }),
+                _buildActionButton(Icons.details, 'Ver detalles', () {}),
+                _buildActionButton(Icons.assignment, 'Contrato', () {}),
               ],
             ),
           ],
@@ -211,13 +218,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildActionButton(IconData icon, String label) {
-    return Column(
-      children: [
-        Icon(icon, color: Colors.grey),
-        const SizedBox(height: 4.0),
-        Text(label, style: const TextStyle(color: Colors.grey)),
-      ],
+  Widget _buildActionButton(IconData icon, String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Icon(icon, color: Colors.grey),
+          const SizedBox(height: 4.0),
+          Text(label, style: const TextStyle(color: Colors.grey)),
+        ],
+      ),
     );
   }
 }
