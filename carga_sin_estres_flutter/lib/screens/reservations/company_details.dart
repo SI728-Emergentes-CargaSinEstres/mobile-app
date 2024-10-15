@@ -149,7 +149,7 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(),
+      bottomNavigationBar: const CustomBottomNavigationBar(),
     );
   }
 
