@@ -13,7 +13,7 @@ class DateOfBirthInput extends StatefulWidget {
   });
 
   @override
-  _DateOfBirthInputState createState() => _DateOfBirthInputState();
+  State<DateOfBirthInput> createState() => _DateOfBirthInputState();
 }
 
 class _DateOfBirthInputState extends State<DateOfBirthInput> {
