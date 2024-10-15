@@ -133,7 +133,9 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: AppTheme.secondaryBlack,
                         backgroundColor: AppTheme.secondaryGray2),
