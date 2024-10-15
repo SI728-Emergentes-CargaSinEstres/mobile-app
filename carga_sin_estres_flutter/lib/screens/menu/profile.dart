@@ -1,6 +1,7 @@
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:carga_sin_estres_flutter/widgets/custom_bottom_navigation_bar.dart';
 import 'package:carga_sin_estres_flutter/widgets/date_of_birth_input.dart';
+import 'package:carga_sin_estres_flutter/widgets/form_input.dart';
 import 'package:carga_sin_estres_flutter/widgets/password_input.dart';
 import 'package:flutter/material.dart';
 
@@ -55,17 +56,24 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 30),
-                      _buildFormInput(inputWidth, 'Nombres', Icons.person),
+                      FormInput(
+                          inputWidth: inputWidth,
+                          labelText: 'Nombres',
+                          icon: Icons.person),
                       const SizedBox(height: 20),
-                      _buildFormInput(
-                          inputWidth, 'Número de celular', Icons.phone),
+                      FormInput(
+                          inputWidth: inputWidth,
+                          labelText: 'Número de celular',
+                          icon: Icons.phone),
                       const SizedBox(height: 20),
                       DateOfBirthInput(
                           inputWidth: inputWidth,
                           labelText: 'Fecha de nacimiento'),
                       const SizedBox(height: 20),
-                      _buildFormInput(
-                          inputWidth, 'Correo electrónico', Icons.email),
+                      FormInput(
+                          inputWidth: inputWidth,
+                          labelText: 'Correo electrónico',
+                          icon: Icons.email),
                       const SizedBox(height: 20),
                       PasswordInput(
                           inputWidth: inputWidth, labelText: 'Contraseña'),
@@ -103,44 +111,6 @@ class ProfileScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: const CustomBottomNavigationBar(),
-    );
-  }
-
-  Widget _buildFormInput(double inputWidth, String labelText, IconData icon) {
-    return SizedBox(
-      width: inputWidth,
-      child: TextField(
-        decoration: InputDecoration(
-          prefixIcon: Icon(
-            icon,
-            color: AppTheme.secondaryGray,
-          ),
-          labelText: labelText,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: AppTheme.secondaryGray2,
-              width: 1.0,
-            ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: AppTheme.secondaryGray2,
-              width: 1.0,
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(
-              color: AppTheme.secondaryGray2,
-              width: 1.0,
-            ),
-          ),
-          filled: true,
-          fillColor: const Color.fromARGB(255, 255, 255, 255),
-        ),
-      ),
     );
   }
 }
