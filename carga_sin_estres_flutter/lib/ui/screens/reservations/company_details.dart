@@ -1,7 +1,7 @@
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
-import 'package:carga_sin_estres_flutter/widgets/custom_bottom_navigation_bar.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/custom_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:carga_sin_estres_flutter/models/company.dart';
+import 'package:carga_sin_estres_flutter/data/models/company.dart';
 
 class CompanyDetailsScreen extends StatefulWidget {
   final Company company;

@@ -1,48 +1,52 @@
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
-class PasswordInput extends StatefulWidget {
+class DateOfBirthInput extends StatefulWidget {
   final double inputWidth;
   final String labelText;
+  final TextEditingController controller;
 
-  const PasswordInput(
-      {super.key, required this.inputWidth, required this.labelText});
+  const DateOfBirthInput({
+    super.key,
+    required this.inputWidth,
+    required this.labelText,
+    required this.controller,
+  });
 
   @override
-  State<PasswordInput> createState() => _PasswordInputState();
+  State<DateOfBirthInput> createState() => _DateOfBirthInputState();
 }
 
-class _PasswordInputState extends State<PasswordInput> {
-  bool _isPasswordVisible = false;
-  final TextEditingController _passwordController = TextEditingController();
+class _DateOfBirthInputState extends State<DateOfBirthInput> {
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+
+    if (picked != null) {
+      setState(() {
+        widget.controller.text = DateFormat('yyyy-MM-dd').format(picked);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.inputWidth,
       child: TextField(
-        controller: _passwordController,
-        obscureText: !_isPasswordVisible,
+        controller: widget.controller,
+        readOnly: true,
+        onTap: () => _selectDate(context),
         decoration: InputDecoration(
           prefixIcon: const Icon(
-            Icons.lock_outline,
+            Icons.calendar_today,
             color: AppTheme.secondaryGray,
           ),
-          suffixIcon: _passwordController.text.isNotEmpty
-              ? IconButton(
-                  icon: Icon(
-                    _isPasswordVisible
-                        ? Icons.visibility_off
-                        : Icons.visibility,
-                    color: AppTheme.secondaryGray,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isPasswordVisible = !_isPasswordVisible;
-                    });
-                  },
-                )
-              : null,
           labelText: widget.labelText,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -68,9 +72,6 @@ class _PasswordInputState extends State<PasswordInput> {
           filled: true,
           fillColor: const Color.fromARGB(255, 255, 255, 255),
         ),
-        onChanged: (value) {
-          setState(() {});
-        },
       ),
     );
   }

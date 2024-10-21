@@ -1,5 +1,5 @@
-import 'package:carga_sin_estres_flutter/widgets/form_input.dart';
-import 'package:carga_sin_estres_flutter/widgets/password_input.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/form_input.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/password_input.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -10,6 +10,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -66,10 +69,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     FormInput(
                         inputWidth: inputWidth,
                         labelText: 'Correo Electrónico',
-                        icon: Icons.email),
+                        icon: Icons.email,
+                        controller: _emailController),
                     const SizedBox(height: 35),
                     PasswordInput(
-                        inputWidth: inputWidth, labelText: 'Contraseña'),
+                        inputWidth: inputWidth,
+                        labelText: 'Contraseña',
+                        controller: _passwordController),
                     const SizedBox(height: 45),
                     SizedBox(
                       width: inputWidth,

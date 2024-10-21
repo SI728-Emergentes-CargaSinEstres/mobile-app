@@ -1,7 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:carga_sin_estres_flutter/data/models/sign_up.dart';
+import 'package:carga_sin_estres_flutter/data/services/auth_service.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
-import 'package:carga_sin_estres_flutter/widgets/date_of_birth_input.dart';
-import 'package:carga_sin_estres_flutter/widgets/form_input.dart';
-import 'package:carga_sin_estres_flutter/widgets/password_input.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/date_of_birth_input.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/form_input.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/password_input.dart';
 import 'package:flutter/material.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -12,9 +16,63 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _dateOfBirthController = TextEditingController();
+
+  final AuthService _authService = AuthService();
+
   @override
   void initState() {
     super.initState();
+  }
+
+  void _signUp() async {
+    if (_firstNameController.text.isEmpty ||
+        _lastNameController.text.isEmpty ||
+        _phoneNumberController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _dateOfBirthController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill in all fields'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final signUp = SignUp(
+      firstName: _firstNameController.text,
+      lastName: _lastNameController.text,
+      phoneNumber: _phoneNumberController.text,
+      email: _emailController.text,
+      password: _passwordController.text,
+      dateOfBirth: DateTime.parse(_dateOfBirthController.text),
+    );
+
+    try {
+      await _authService.signUp(signUp);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sign up successful!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pushNamed(context, '/login');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to sign up: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -61,30 +119,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     FormInput(
                         inputWidth: inputWidth,
                         labelText: 'Nombres',
-                        icon: Icons.person),
+                        icon: Icons.person,
+                        controller: _firstNameController),
+                    const SizedBox(height: 10),
+                    FormInput(
+                        inputWidth: inputWidth,
+                        labelText: 'Apellidos',
+                        icon: Icons.person,
+                        controller: _lastNameController),
                     const SizedBox(height: 10),
                     FormInput(
                         inputWidth: inputWidth,
                         labelText: 'Número de celular',
-                        icon: Icons.phone),
+                        icon: Icons.phone,
+                        controller: _phoneNumberController),
                     const SizedBox(height: 10),
                     DateOfBirthInput(
                         inputWidth: inputWidth,
-                        labelText: 'Fecha de nacimiento'),
+                        labelText: 'Fecha de nacimiento',
+                        controller: _dateOfBirthController),
                     const SizedBox(height: 10),
                     FormInput(
                         inputWidth: inputWidth,
                         labelText: 'Correo electrónico',
-                        icon: Icons.email),
+                        icon: Icons.email,
+                        controller: _emailController),
                     const SizedBox(height: 10),
                     PasswordInput(
-                        inputWidth: inputWidth, labelText: 'Contraseña'),
+                        inputWidth: inputWidth,
+                        labelText: 'Contraseña',
+                        controller: _passwordController),
                     const SizedBox(height: 45),
                     SizedBox(
                       width: inputWidth,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/login');
+                          _signUp();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFF5757),

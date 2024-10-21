@@ -1,9 +1,9 @@
-import 'package:carga_sin_estres_flutter/models/message.dart';
-import 'package:carga_sin_estres_flutter/services/chat_service.dart';
+import 'package:carga_sin_estres_flutter/data/models/message.dart';
+import 'package:carga_sin_estres_flutter/data/services/chat_service.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
-import 'package:carga_sin_estres_flutter/widgets/chat_bubble.dart';
-import 'package:carga_sin_estres_flutter/widgets/custom_bottom_navigation_bar.dart';
-import 'package:carga_sin_estres_flutter/widgets/message_input.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/chat_bubble.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/custom_bottom_navigation_bar.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/message_input.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 

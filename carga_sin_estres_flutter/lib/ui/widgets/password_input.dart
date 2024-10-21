@@ -1,31 +1,51 @@
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:flutter/material.dart';
 
-class FormInput extends StatefulWidget {
+class PasswordInput extends StatefulWidget {
   final double inputWidth;
   final String labelText;
-  final IconData icon;
-  const FormInput(
+  final TextEditingController controller;
+
+  const PasswordInput(
       {super.key,
       required this.inputWidth,
       required this.labelText,
-      required this.icon});
+      required this.controller});
 
   @override
-  State<FormInput> createState() => _FormInputState();
+  State<PasswordInput> createState() => _PasswordInputState();
 }
 
-class _FormInputState extends State<FormInput> {
+class _PasswordInputState extends State<PasswordInput> {
+  bool _isPasswordVisible = false;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.inputWidth,
       child: TextField(
+        controller: widget.controller,
+        obscureText: !_isPasswordVisible,
         decoration: InputDecoration(
-          prefixIcon: Icon(
-            widget.icon,
+          prefixIcon: const Icon(
+            Icons.lock_outline,
             color: AppTheme.secondaryGray,
           ),
+          suffixIcon: widget.controller.text.isNotEmpty
+              ? IconButton(
+                  icon: Icon(
+                    _isPasswordVisible
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    color: AppTheme.secondaryGray,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                )
+              : null,
           labelText: widget.labelText,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -51,6 +71,9 @@ class _FormInputState extends State<FormInput> {
           filled: true,
           fillColor: const Color.fromARGB(255, 255, 255, 255),
         ),
+        onChanged: (value) {
+          setState(() {});
+        },
       ),
     );
   }

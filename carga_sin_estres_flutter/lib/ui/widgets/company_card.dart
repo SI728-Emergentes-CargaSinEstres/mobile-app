@@ -1,5 +1,5 @@
-import 'package:carga_sin_estres_flutter/models/company.dart';
-import 'package:carga_sin_estres_flutter/screens/reservations/company_details.dart';
+import 'package:carga_sin_estres_flutter/data/models/company.dart';
+import 'package:carga_sin_estres_flutter/ui/screens/reservations/company_details.dart';
 import 'package:flutter/material.dart';
 
 class CompanyCard extends StatelessWidget {

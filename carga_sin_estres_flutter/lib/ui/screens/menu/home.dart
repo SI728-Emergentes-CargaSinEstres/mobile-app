@@ -1,7 +1,7 @@
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
-import 'package:carga_sin_estres_flutter/widgets/company_search.dart';
-import 'package:carga_sin_estres_flutter/widgets/custom_bottom_navigation_bar.dart';
-import 'package:carga_sin_estres_flutter/widgets/quick_load.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/company_search.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/custom_bottom_navigation_bar.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/quick_load.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {

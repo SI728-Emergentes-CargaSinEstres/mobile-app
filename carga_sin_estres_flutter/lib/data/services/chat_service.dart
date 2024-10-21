@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:carga_sin_estres_flutter/models/message.dart';
+import 'package:carga_sin_estres_flutter/data/models/message.dart';
 import 'package:http/http.dart' as http;
 
 class ChatService {

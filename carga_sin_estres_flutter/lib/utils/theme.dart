@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
+  static const String baseUrl =
+      'https://carga-sin-estres.ewr1.zeabur.app/api/v1';
+
   static const Color primaryWhite = Color(0xFFF0F2F5);
   static const Color primaryYellow = Color(0xFFFFC431);
   static const Color secondaryBlack = Color(0xFF232323);
