@@ -1,6 +1,6 @@
-import 'package:carga_sin_estres_flutter/models/company.dart';
+import 'package:carga_sin_estres_flutter/data/models/company.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
-import 'package:carga_sin_estres_flutter/widgets/company_card.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/company_card.dart';
 import 'package:flutter/material.dart';
 
 class CompanySearch extends StatefulWidget {

@@ -1,4 +1,4 @@
-import 'package:carga_sin_estres_flutter/models/services.dart';
+import 'package:carga_sin_estres_flutter/data/models/services.dart';
 
 class Company {
   final int id;

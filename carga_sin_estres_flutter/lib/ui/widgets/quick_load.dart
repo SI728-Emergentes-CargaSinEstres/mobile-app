@@ -1,5 +1,5 @@
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
-import 'package:carga_sin_estres_flutter/widgets/quick_load_dialog.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/quick_load_dialog.dart';
 import 'package:flutter/material.dart';
 
 class QuickLoad extends StatelessWidget {

@@ -1,50 +1,32 @@
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
-class DateOfBirthInput extends StatefulWidget {
+class FormInput extends StatefulWidget {
   final double inputWidth;
   final String labelText;
-
-  const DateOfBirthInput({
-    super.key,
-    required this.inputWidth,
-    required this.labelText,
-  });
+  final IconData icon;
+  final TextEditingController controller;
+  const FormInput(
+      {super.key,
+      required this.inputWidth,
+      required this.labelText,
+      required this.icon,
+      required this.controller});
 
   @override
-  State<DateOfBirthInput> createState() => _DateOfBirthInputState();
+  State<FormInput> createState() => _FormInputState();
 }
 
-class _DateOfBirthInputState extends State<DateOfBirthInput> {
-  final TextEditingController _dateController = TextEditingController();
-
-  Future<void> _selectDate(BuildContext context) async {
-    DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-
-    if (picked != null) {
-      setState(() {
-        _dateController.text = DateFormat('yyyy-MM-dd').format(picked);
-      });
-    }
-  }
-
+class _FormInputState extends State<FormInput> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.inputWidth,
       child: TextField(
-        controller: _dateController,
-        readOnly: true,
-        onTap: () => _selectDate(context),
+        controller: widget.controller,
         decoration: InputDecoration(
-          prefixIcon: const Icon(
-            Icons.calendar_today,
+          prefixIcon: Icon(
+            widget.icon,
             color: AppTheme.secondaryGray,
           ),
           labelText: widget.labelText,
