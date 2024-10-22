@@ -1,3 +1,7 @@
+import 'dart:ffi';
+
+import 'package:carga_sin_estres_flutter/data/models/customer.dart';
+import 'package:carga_sin_estres_flutter/data/services/customer_service.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/company_search.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/custom_bottom_navigation_bar.dart';
@@ -13,6 +17,32 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int? userId;
+  Customer? customer;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('userId');
+    if (userId != null) {
+      try {
+        CustomerService customerService = CustomerService();
+        Customer fetchedCustomer =
+            await customerService.getCustomerById(userId!);
+        setState(() {
+          customer = fetchedCustomer;
+        });
+      } catch (e) {
+        print('Error al obtener el customer: $e');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -35,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    _buildUserWave('Javier'),
+                    _buildUserWave(customer?.firstName ?? ''),
                     const SizedBox(height: 30),
                     const QuickLoad(),
                     const SizedBox(height: 30),
