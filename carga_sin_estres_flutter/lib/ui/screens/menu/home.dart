@@ -3,6 +3,7 @@ import 'package:carga_sin_estres_flutter/ui/widgets/company_search.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/custom_bottom_navigation_bar.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/quick_load.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -51,26 +52,40 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildUserWave(String username) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: RichText(
-        textAlign: TextAlign.left,
-        text: TextSpan(
-          style: const TextStyle(
-            fontSize: 24,
-            color: AppTheme.secondaryBlack,
-          ),
-          children: <TextSpan>[
-            const TextSpan(text: 'Bienvenido '),
-            TextSpan(
-              text: '$username 👋',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        RichText(
+          textAlign: TextAlign.left,
+          text: TextSpan(
+            style: const TextStyle(
+              fontSize: 24,
+              color: AppTheme.secondaryBlack,
             ),
-          ],
+            children: <TextSpan>[
+              const TextSpan(text: 'Bienvenido '),
+              TextSpan(
+                text: '$username 👋',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
+        // Botón de cerrar sesión
+        IconButton(
+          icon: const Icon(Icons.logout),
+          onPressed: () async {
+            // Acción para cerrar sesión
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.clear(); // Limpiar la información guardada
+
+            // Redirigir a la pantalla de login
+            Navigator.pushReplacementNamed(context, '/login');
+          },
+        ),
+      ],
     );
   }
 }
