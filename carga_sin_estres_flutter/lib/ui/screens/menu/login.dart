@@ -1,3 +1,4 @@
+import 'package:carga_sin_estres_flutter/data/services/sign_in_service.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/form_input.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/password_input.dart';
 import 'package:flutter/material.dart';
@@ -12,11 +13,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -80,8 +77,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(
                       width: inputWidth,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/home');
+                        onPressed: () async {
+                          try {
+                            final response = await _authService.signIn(
+                              _emailController.text,
+                              _passwordController.text,
+                            );
+                            // Si el inicio de sesión es exitoso, navega a la pantalla principal.
+                            Navigator.pushNamed(context, '/home',
+                                arguments: response);
+                          } catch (e) {
+                            // Mostrar un mensaje de error en caso de fallo.
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(e.toString()),
+                              ),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFF5757),
