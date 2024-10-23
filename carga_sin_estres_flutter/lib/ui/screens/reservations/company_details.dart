@@ -47,7 +47,7 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundImage: AssetImage(widget.company.logo),
+                  backgroundImage: NetworkImage(widget.company.logo),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -55,16 +55,22 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.company.description,
+                        widget.company.description.isNotEmpty
+                            ? widget.company.description
+                            : 'Descripción no disponible',
                         style: const TextStyle(
                             fontSize: 16, color: AppTheme.secondaryGray),
                       ),
                       const SizedBox(height: 8),
                       Row(
                         children: List.generate(
-                          widget.company.averageRating,
-                          (index) =>
-                              const Icon(Icons.star, color: Colors.amber),
+                          5,
+                          (index) => Icon(
+                            Icons.star,
+                            color: index < widget.company.averageRating
+                                ? Colors.orange
+                                : Colors.grey,
+                          ),
                         ),
                       ),
                     ],
@@ -72,7 +78,7 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
             const Text(
               'Detalles de la empresa',
               style: TextStyle(
@@ -82,7 +88,7 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
             ),
             const SizedBox(height: 8),
             _buildCompanyDetails(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
             const Text(
               'Detalles de la reserva',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -161,13 +167,49 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              'Servicios que ofrece:',
+              'TIC:',
               style: TextStyle(fontSize: 16, color: AppTheme.secondaryGray),
             ),
             Text(
-              widget.company.services.isNotEmpty
-                  ? widget.company.services.map((s) => s.name).join(', ')
-                  : 'N/A',
+              widget.company.tic.isNotEmpty
+                  ? widget.company.tic
+                  : 'No TIC available',
+              style:
+                  const TextStyle(fontSize: 16, color: AppTheme.secondaryBlack),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Dirección:',
+              style: TextStyle(
+                  fontSize: 16, color: Color.fromARGB(255, 113, 109, 109)),
+            ),
+            Text(
+              widget.company.direction.isNotEmpty
+                  ? widget.company.direction
+                  : 'No direction available',
+              style:
+                  const TextStyle(fontSize: 16, color: AppTheme.secondaryBlack),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Email:',
+              style: TextStyle(
+                  fontSize: 16, color: Color.fromARGB(255, 113, 109, 109)),
+            ),
+            Text(
+              widget.company.email.isNotEmpty
+                  ? widget.company.email
+                  : 'No email available',
               style:
                   const TextStyle(fontSize: 16, color: AppTheme.secondaryBlack),
             ),
@@ -179,10 +221,31 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
           children: [
             const Text(
               'Teléfono:',
-              style: TextStyle(fontSize: 16, color: AppTheme.secondaryGray),
+              style: TextStyle(
+                  fontSize: 16, color: Color.fromARGB(255, 113, 109, 109)),
             ),
             Text(
-              widget.company.phoneNumber,
+              widget.company.phoneNumber.isNotEmpty
+                  ? widget.company.phoneNumber
+                  : 'No phone available',
+              style:
+                  const TextStyle(fontSize: 16, color: AppTheme.secondaryBlack),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Servicios:',
+              style: TextStyle(
+                  fontSize: 16, color: Color.fromARGB(255, 113, 109, 109)),
+            ),
+            Text(
+              widget.company.services.isNotEmpty
+                  ? widget.company.services.map((s) => s.name).join(', ')
+                  : 'No hay servicios disponibles',
               style:
                   const TextStyle(fontSize: 16, color: AppTheme.secondaryBlack),
             ),
