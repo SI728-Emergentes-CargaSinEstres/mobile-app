@@ -1,4 +1,5 @@
 import 'package:carga_sin_estres_flutter/data/models/company.dart';
+import 'package:carga_sin_estres_flutter/data/models/services.dart';
 import 'package:carga_sin_estres_flutter/data/services/company_service.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/company_card.dart';
@@ -13,17 +14,20 @@ class CompanySearch extends StatefulWidget {
 
 class _CompanySearchState extends State<CompanySearch> {
   List<Company> companies = [];
+  List<Services> services = [];
   String errorMessage = '';
 
   List<Company> filteredCompanies = [];
   final TextEditingController _searchByNameController = TextEditingController();
   final TextEditingController _searchByLocationController =
       TextEditingController();
+  String? selectedService;
 
   @override
   void initState() {
     super.initState();
     _loadCompanies();
+    _loadServices();
     _searchByNameController.addListener(_filterCompanies);
     _searchByLocationController.addListener(_filterCompanies);
   }
@@ -43,6 +47,20 @@ class _CompanySearchState extends State<CompanySearch> {
     }
   }
 
+  Future<void> _loadServices() async {
+    try {
+      final service = CompanyService();
+      List<Services> fetchedServices = await service.getServices();
+      setState(() {
+        services = fetchedServices;
+      });
+    } catch (error) {
+      setState(() {
+        errorMessage = error.toString();
+      });
+    }
+  }
+
   void _filterCompanies() {
     String nameQuery = _searchByNameController.text.toLowerCase();
     String locationQuery = _searchByLocationController.text.toLowerCase();
@@ -52,9 +70,18 @@ class _CompanySearchState extends State<CompanySearch> {
         bool matchesName = company.name.toLowerCase().contains(nameQuery);
         bool matchesLocation =
             company.direction.toLowerCase().contains(locationQuery);
-        return matchesName && matchesLocation;
+        bool matchesService = selectedService == null ||
+            company.services.any((service) => service.name == selectedService);
+        return matchesName && matchesLocation && matchesService;
       }).toList();
     });
+  }
+
+  void _clearSelectedService() {
+    setState(() {
+      selectedService = null;
+    });
+    _filterCompanies();
   }
 
   @override
@@ -113,8 +140,14 @@ class _CompanySearchState extends State<CompanySearch> {
           decoration: InputDecoration(
             hintText: 'Servicio',
             hintStyle: const TextStyle(color: AppTheme.secondaryGray3),
-            prefixIcon: const Icon(Icons.miscellaneous_services,
-                color: AppTheme.secondaryGray3),
+            prefixIcon: selectedService != null
+                ? IconButton(
+                    icon: const Icon(Icons.cleaning_services,
+                        color: AppTheme.primaryYellow),
+                    onPressed: _clearSelectedService,
+                  )
+                : const Icon(Icons.miscellaneous_services,
+                    color: AppTheme.secondaryGray3),
             filled: true,
             fillColor: Colors.white,
             border: OutlineInputBorder(
@@ -122,13 +155,28 @@ class _CompanySearchState extends State<CompanySearch> {
               borderSide: BorderSide.none,
             ),
           ),
-          items: ['Carga', 'Mudanza'].map((String value) {
+          value: selectedService,
+          isExpanded: true,
+          menuMaxHeight: 200,
+          dropdownColor: Colors.white,
+          items: services.map((Services service) {
             return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
+              value: service.name,
+              child: Text(
+                service.name,
+                style: const TextStyle(
+                  color: AppTheme.secondaryBlack,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             );
           }).toList(),
-          onChanged: (value) {},
+          onChanged: (value) {
+            setState(() {
+              selectedService = value;
+            });
+            _filterCompanies();
+          },
         ),
         const SizedBox(height: 10),
         ...filteredCompanies.map((company) {
