@@ -15,10 +15,14 @@ class _CompanySearchState extends State<CompanySearch> {
   List<Company> companies = [];
   String errorMessage = '';
 
+  List<Company> filteredCompanies = [];
+  final TextEditingController _searchByNameController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _loadCompanies();
+    _searchByNameController.addListener(_filterCompanies);
   }
 
   Future<void> _loadCompanies() async {
@@ -27,12 +31,28 @@ class _CompanySearchState extends State<CompanySearch> {
       List<Company> fetchedCompanies = await service.getCompanies();
       setState(() {
         companies = fetchedCompanies;
+        filteredCompanies = fetchedCompanies;
       });
     } catch (error) {
       setState(() {
         errorMessage = error.toString();
       });
     }
+  }
+
+  void _filterCompanies() {
+    String query = _searchByNameController.text.toLowerCase();
+    setState(() {
+      filteredCompanies = companies.where((company) {
+        return company.name.toLowerCase().contains(query);
+      }).toList();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchByNameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -49,6 +69,7 @@ class _CompanySearchState extends State<CompanySearch> {
         ),
         const SizedBox(height: 10),
         TextField(
+          controller: _searchByNameController,
           decoration: InputDecoration(
             hintText: 'Nombre',
             hintStyle: const TextStyle(color: AppTheme.secondaryGray3),
@@ -116,7 +137,7 @@ class _CompanySearchState extends State<CompanySearch> {
           ],
         ),
         const SizedBox(height: 10),
-        ...companies.map((company) {
+        ...filteredCompanies.map((company) {
           return CompanyCard(company: company);
         }),
       ],
