@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:carga_sin_estres_flutter/data/models/customer.dart';
 import 'package:carga_sin_estres_flutter/data/services/customer_service.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';

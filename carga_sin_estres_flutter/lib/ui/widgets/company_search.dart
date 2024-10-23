@@ -1,4 +1,5 @@
 import 'package:carga_sin_estres_flutter/data/models/company.dart';
+import 'package:carga_sin_estres_flutter/data/services/company_service.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/company_card.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ class CompanySearch extends StatefulWidget {
 
 class _CompanySearchState extends State<CompanySearch> {
   List<Company> companies = [];
+  String errorMessage = '';
 
   @override
   void initState() {
@@ -19,36 +21,18 @@ class _CompanySearchState extends State<CompanySearch> {
     _loadCompanies();
   }
 
-  void _loadCompanies() {
-    // TODO: Replace this with actual data fetching logic.
-    companies = [
-      Company(
-        id: 1,
-        name: "Company A",
-        tic: "TIC001",
-        address: "123 Main St",
-        email: "contact@companya.com",
-        phoneNumber: "123456789",
-        description: "Description of Company A",
-        logo: "assets/moving_images/moving_truck.png",
-        services: [],
-        averageRating: 4,
-        hasMembership: true,
-      ),
-      Company(
-        id: 2,
-        name: "Company B",
-        tic: "TIC002",
-        address: "456 Elm St",
-        email: "contact@companyb.com",
-        phoneNumber: "987-654-3210",
-        description: "Description of Company B",
-        logo: "assets/moving_images/moving_truck.png",
-        services: [],
-        averageRating: 5,
-        hasMembership: false,
-      ),
-    ];
+  Future<void> _loadCompanies() async {
+    try {
+      final service = CompanyService();
+      List<Company> fetchedCompanies = await service.getCompanies();
+      setState(() {
+        companies = fetchedCompanies;
+      });
+    } catch (error) {
+      setState(() {
+        errorMessage = error.toString();
+      });
+    }
   }
 
   @override

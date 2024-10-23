@@ -1,22 +1,16 @@
 class Services {
-  final int id;
   final String name;
+  final String description;
 
   Services({
-    required this.id,
     required this.name,
+    required this.description,
   });
 
-  factory Services.fromJson(Map<String, dynamic> json,
-      {required Map<String, Object> extraJson,
-      required Map<String, Object> additionalJson}) {
+  factory Services.fromJson(Map<String, dynamic> json) {
     return Services(
-      id: json['id'],
-      name: json['name'],
+      name: json['name'] ?? 'Unknown',
+      description: json['description'] ?? 'No description',
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {'name': name};
   }
 }

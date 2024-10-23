@@ -4,7 +4,7 @@ class Company {
   final int id;
   final String name;
   final String tic;
-  final String address;
+  final String direction;
   final String email;
   final String phoneNumber;
   final String description;
@@ -17,10 +17,10 @@ class Company {
     required this.id,
     required this.name,
     required this.tic,
-    required this.address,
-    required this.email,
-    required this.phoneNumber,
-    required this.description,
+    required this.direction,
+    this.email = '',
+    this.phoneNumber = '',
+    this.description = '',
     required this.logo,
     required this.services,
     required this.averageRating,
@@ -30,31 +30,27 @@ class Company {
   factory Company.fromJson(Map<String, dynamic> json) {
     return Company(
       id: json['id'],
-      name: json['name'],
-      tic: json['tic'],
-      address: json['address'],
-      email: json['email'],
-      phoneNumber: json['phoneNumber'],
-      description: json['description'],
-      logo: json['logo'],
-      services: json['services'],
-      averageRating: json['averageRating'],
-      hasMembership: json['hasMembership'],
+      name: json['name'] ?? 'Unknown Company',
+      tic: json['tic'] ?? '',
+      direction: json['direction'] ?? '',
+      email: json['email'] ?? '',
+      phoneNumber: json['phoneNumber'] ?? '',
+      description: json['description'] ?? '',
+      logo: json['logo'] ?? 'default_logo.png',
+      services: (json['servicios'] as List<dynamic>?)
+              ?.map((service) => Services.fromJson(service))
+              .toList() ??
+          [],
+      averageRating: (json['averageRating'] as num?)?.toInt() ?? 0,
+      hasMembership: json['hasMembership'] ?? false,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'tic': tic,
-      'address': address,
-      'email': email,
-      'phoneNumber': phoneNumber,
-      'description': description,
-      'logo': logo,
-      'services': services,
-      'averageRating': averageRating,
-      'hasMembership': hasMembership
-    };
+  @override
+  String toString() {
+    return 'Company{id: $id, name: $name, direction: $direction, email: $email, '
+        'phoneNumber: $phoneNumber, description: $description, '
+        'logo: $logo, servicios: $services, averageRating: $averageRating, '
+        'hasMembership: $hasMembership, tic: $tic}';
   }
 }

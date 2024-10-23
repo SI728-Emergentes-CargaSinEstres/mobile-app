@@ -13,11 +13,9 @@ class CustomerService {
     );
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseBody = jsonDecode(response.body);
-      print("THIS IS CORRECT: + $responseBody");
       return Customer.fromJson(responseBody);
     } else {
       final Map<String, dynamic> responseBody = jsonDecode(response.body);
-      print("THIS IS not CORRECT: + $responseBody");
       final errorMessage = responseBody['message'] ?? 'Failed to get customer';
       throw errorMessage;
     }
