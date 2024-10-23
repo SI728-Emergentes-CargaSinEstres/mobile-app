@@ -1,9 +1,12 @@
+import 'package:carga_sin_estres_flutter/data/services/time_block_service.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class ScheduleScreen extends StatefulWidget {
-  const ScheduleScreen({super.key});
+  final int companyId; // Recibe el ID de la empresa
+
+  const ScheduleScreen({super.key, required this.companyId});
 
   @override
   _ScheduleScreenState createState() => _ScheduleScreenState();
@@ -11,28 +14,34 @@ class ScheduleScreen extends StatefulWidget {
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
   List<String> availableHours = [];
-
-  // Ejemplo de respuesta de la API
-  Map<String, dynamic> scheduleResponse = {
-    "id": 2,
-    "startTime": "09:00:00",
-    "endTime": "12:00:00", // Modifica según el horario obtenido
-    "companyId": 1,
-  };
-
   List<String> selectedHours = [];
   String formattedDate = DateFormat('dd/MM/yy').format(DateTime.now());
+
+  final TimeBlockService _timeBlockService = TimeBlockService();
 
   @override
   void initState() {
     super.initState();
-    _generateAvailableHours();
+    _fetchTimeBlock(); // Llama al método para obtener los bloques de tiempo
+  }
+
+  // Método para obtener el bloque de tiempo de la empresa y generar las horas disponibles
+  Future<void> _fetchTimeBlock() async {
+    try {
+      TimeBlock? timeBlock =
+          await _timeBlockService.getTimeBlockByCompanyId(widget.companyId);
+      if (timeBlock != null) {
+        _generateAvailableHours(timeBlock.startTime, timeBlock.endTime);
+      }
+    } catch (error) {
+      print('Error al obtener el bloque de tiempo: $error');
+    }
   }
 
   // Método para generar las horas disponibles entre startTime y endTime
-  void _generateAvailableHours() {
-    DateTime startTime = DateFormat.Hms().parse(scheduleResponse['startTime']);
-    DateTime endTime = DateFormat.Hms().parse(scheduleResponse['endTime']);
+  void _generateAvailableHours(String start, String end) {
+    DateTime startTime = DateFormat.Hms().parse(start);
+    DateTime endTime = DateFormat.Hms().parse(end);
 
     List<String> hours = [];
     while (startTime.isBefore(endTime)) {

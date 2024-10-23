@@ -1,3 +1,5 @@
+import 'package:carga_sin_estres_flutter/data/services/ubigeo_service.dart';
+import 'package:carga_sin_estres_flutter/ui/screens/reservations/schedule_screen.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/custom_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +18,88 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
   String? selectedRegion;
   String? selectedProvince;
   String? selectedDistrict;
+
+  // Listas para almacenar las opciones dinámicas de región, provincia y distrito
+  List<String> regions = [];
+  List<String> provinces = [];
+  List<String> districts = [];
+
+  bool isLoading = false; // Variable para indicar si está cargando datos
+
+  final UbigeoService _ubigeoService =
+      UbigeoService(); // Instancia del servicio de Ubigeo
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRegions(); // Llamar al servicio para obtener las regiones
+  }
+
+  // Método para obtener los departamentos (regiones)
+  Future<void> _fetchRegions() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      List<String> data = await _ubigeoService.fetchDepartments();
+      setState(() {
+        regions = data;
+        isLoading = false;
+      });
+    } catch (error) {
+      print('Error al obtener los departamentos: $error');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  // Método para obtener las provincias
+  Future<void> _fetchProvinces(String department) async {
+    setState(() {
+      isLoading = true;
+      provinces.clear(); // Limpiar provincias al seleccionar una nueva región
+      districts.clear(); // Limpiar distritos
+      selectedProvince = null;
+      selectedDistrict = null;
+    });
+
+    try {
+      List<String> data = await _ubigeoService.fetchProvinces(department);
+      setState(() {
+        provinces = data;
+        isLoading = false;
+      });
+    } catch (error) {
+      print('Error al obtener las provincias: $error');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  // Método para obtener los distritos
+  Future<void> _fetchDistricts(String province) async {
+    setState(() {
+      isLoading = true;
+      districts.clear(); // Limpiar distritos al seleccionar una nueva provincia
+      selectedDistrict = null;
+    });
+
+    try {
+      List<Map<String, dynamic>> data =
+          await _ubigeoService.fetchDistricts(province);
+      setState(() {
+        districts = data.map((d) => d['distrito'] as String).toList();
+        isLoading = false;
+      });
+    } catch (error) {
+      print('Error al obtener los distritos: $error');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,8 +200,13 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Navegar a la vista de horarios
-                  Navigator.pushNamed(context, '/schedule');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ScheduleScreen(companyId: widget.company.id),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryYellow,
@@ -265,27 +354,39 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
       children: [
         _buildDropdown(
           hintText: 'Región',
-          items: ['Lima', 'Arequipa', 'Ayacucho'],
+          value: selectedRegion, // Añadir el valor seleccionado
+          items: regions,
           onChanged: (value) {
-            setState(() {
-              selectedRegion = value;
-            });
+            if (value != selectedRegion) {
+              setState(() {
+                selectedRegion = value;
+                selectedProvince = null;
+                selectedDistrict = null;
+              });
+              _fetchProvinces(value!);
+            }
           },
         ),
         const SizedBox(height: 10),
         _buildDropdown(
           hintText: 'Provincia',
-          items: ['Lima', 'Callao'],
+          value: selectedProvince, // Añadir el valor seleccionado
+          items: provinces,
           onChanged: (value) {
-            setState(() {
-              selectedProvince = value;
-            });
+            if (value != selectedProvince) {
+              setState(() {
+                selectedProvince = value;
+                selectedDistrict = null;
+              });
+              _fetchDistricts(value!);
+            }
           },
         ),
         const SizedBox(height: 10),
         _buildDropdown(
           hintText: 'Distrito',
-          items: ['Monterrico', 'San Juan De Lurigancho'],
+          value: selectedDistrict, // Añadir el valor seleccionado
+          items: districts,
           onChanged: (value) {
             setState(() {
               selectedDistrict = value;
@@ -298,10 +399,14 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
 
   Widget _buildDropdown({
     required String hintText,
+    required String? value, // El valor seleccionado
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
     return DropdownButtonFormField<String>(
+      value: value != null && items.contains(value)
+          ? value
+          : null, // Verifica si el valor está en la lista
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: const TextStyle(color: AppTheme.secondaryGray3),
@@ -318,7 +423,11 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
           child: Text(value),
         );
       }).toList(),
-      onChanged: onChanged,
+      onChanged: (selectedValue) {
+        if (selectedValue != value) {
+          onChanged(selectedValue);
+        }
+      },
     );
   }
 
