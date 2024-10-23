@@ -115,13 +115,18 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  // Navegar a la vista de horarios
+                  Navigator.pushNamed(context, '/schedule');
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryYellow,
                 ),
-                child: const Text('Ver calendario',
-                    style: TextStyle(
-                        fontSize: 16, color: AppTheme.secondaryBlack)),
+                child: const Text(
+                  'Ver calendario',
+                  style:
+                      TextStyle(fontSize: 16, color: AppTheme.secondaryBlack),
+                ),
               ),
             ),
             const SizedBox(height: 16),

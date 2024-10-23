@@ -4,6 +4,7 @@ import 'package:carga_sin_estres_flutter/ui/screens/menu/profile.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/menu/register.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/menu/splash_screen.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/reservations/history.dart';
+import 'package:carga_sin_estres_flutter/ui/screens/reservations/schedule_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
@@ -46,6 +47,9 @@ class MainApp extends StatelessWidget {
             break;
           case '/profile':
             builder = (BuildContext context) => const ProfileScreen();
+            break;
+          case '/schedule':
+            builder = (BuildContext context) => const ScheduleScreen();
             break;
           default:
             throw Exception('Invalid route: ${settings.name}');
