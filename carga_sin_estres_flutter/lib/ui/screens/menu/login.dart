@@ -1,6 +1,6 @@
-import 'package:carga_sin_estres_flutter/data/services/sign_in_service.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/form_input.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/password_input.dart';
+import 'package:carga_sin_estres_flutter/data/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -83,11 +83,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               _emailController.text,
                               _passwordController.text,
                             );
-                            // Si el inicio de sesión es exitoso, navega a la pantalla principal.
                             Navigator.pushNamed(context, '/home',
                                 arguments: response);
                           } catch (e) {
-                            // Mostrar un mensaje de error en caso de fallo.
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(e.toString()),
