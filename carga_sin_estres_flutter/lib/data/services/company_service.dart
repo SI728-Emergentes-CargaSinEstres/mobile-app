@@ -13,11 +13,9 @@ class CompanyService {
     );
     if (response.statusCode == 200) {
       final List<dynamic> responseBody = jsonDecode(response.body);
-      print('SUCCESS responseBody: $responseBody');
       return responseBody.map((company) => Company.fromJson(company)).toList();
     } else {
       final Map<String, dynamic> responseBody = jsonDecode(response.body);
-      print('AWFUL responseBody: $responseBody');
       final errorMessage = responseBody['message'] ?? 'Failed to get companies';
       throw errorMessage;
     }

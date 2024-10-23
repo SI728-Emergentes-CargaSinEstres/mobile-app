@@ -17,12 +17,15 @@ class _CompanySearchState extends State<CompanySearch> {
 
   List<Company> filteredCompanies = [];
   final TextEditingController _searchByNameController = TextEditingController();
+  final TextEditingController _searchByLocationController =
+      TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadCompanies();
     _searchByNameController.addListener(_filterCompanies);
+    _searchByLocationController.addListener(_filterCompanies);
   }
 
   Future<void> _loadCompanies() async {
@@ -41,10 +44,15 @@ class _CompanySearchState extends State<CompanySearch> {
   }
 
   void _filterCompanies() {
-    String query = _searchByNameController.text.toLowerCase();
+    String nameQuery = _searchByNameController.text.toLowerCase();
+    String locationQuery = _searchByLocationController.text.toLowerCase();
+
     setState(() {
       filteredCompanies = companies.where((company) {
-        return company.name.toLowerCase().contains(query);
+        bool matchesName = company.name.toLowerCase().contains(nameQuery);
+        bool matchesLocation =
+            company.direction.toLowerCase().contains(locationQuery);
+        return matchesName && matchesLocation;
       }).toList();
     });
   }
@@ -52,6 +60,7 @@ class _CompanySearchState extends State<CompanySearch> {
   @override
   void dispose() {
     _searchByNameController.dispose();
+    _searchByLocationController.dispose();
     super.dispose();
   }
 
@@ -84,57 +93,42 @@ class _CompanySearchState extends State<CompanySearch> {
           ),
         ),
         const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  hintText: 'Ubicación',
-                  hintStyle: const TextStyle(color: AppTheme.secondaryGray3),
-                  prefixIcon: const Icon(Icons.location_on,
-                      color: AppTheme.secondaryGray3),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                items: ['San Miguel', 'Monterrico', 'San Isidro']
-                    .map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (value) {},
-              ),
+        TextField(
+          controller: _searchByLocationController,
+          decoration: InputDecoration(
+            hintText: 'Ubicación',
+            hintStyle: const TextStyle(color: AppTheme.secondaryGray3),
+            prefixIcon:
+                const Icon(Icons.location_on, color: AppTheme.secondaryGray3),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide.none,
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  hintText: 'Servicio',
-                  hintStyle: const TextStyle(color: AppTheme.secondaryGray3),
-                  prefixIcon: const Icon(Icons.miscellaneous_services,
-                      color: AppTheme.secondaryGray3),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                items: ['Carga', 'Mudanza'].map((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (value) {},
-              ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            hintText: 'Servicio',
+            hintStyle: const TextStyle(color: AppTheme.secondaryGray3),
+            prefixIcon: const Icon(Icons.miscellaneous_services,
+                color: AppTheme.secondaryGray3),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide.none,
             ),
-          ],
+          ),
+          items: ['Carga', 'Mudanza'].map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (value) {},
         ),
         const SizedBox(height: 10),
         ...filteredCompanies.map((company) {
