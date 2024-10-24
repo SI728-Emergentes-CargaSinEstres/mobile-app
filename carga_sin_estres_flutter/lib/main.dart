@@ -6,7 +6,6 @@ import 'package:carga_sin_estres_flutter/ui/screens/menu/register.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/menu/splash_screen.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/reservations/company_details.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/reservations/history.dart';
-import 'package:carga_sin_estres_flutter/ui/screens/reservations/schedule_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() async {

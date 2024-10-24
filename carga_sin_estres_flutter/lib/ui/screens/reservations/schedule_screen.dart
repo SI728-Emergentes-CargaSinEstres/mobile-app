@@ -2,9 +2,10 @@ import 'package:carga_sin_estres_flutter/data/services/time_block_service.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class ScheduleScreen extends StatefulWidget {
-  final int companyId; // Recibe el ID de la empresa
+  final int companyId;
 
   const ScheduleScreen({super.key, required this.companyId});
 
@@ -15,18 +16,24 @@ class ScheduleScreen extends StatefulWidget {
 class _ScheduleScreenState extends State<ScheduleScreen> {
   List<String> availableHours = [];
   List<String> selectedHours = [];
-  String formattedDate = DateFormat('dd/MM/yy').format(DateTime.now());
+  DateTime selectedDate = DateTime.now();
+  String formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+  bool isLoading = true;
 
   final TimeBlockService _timeBlockService = TimeBlockService();
 
   @override
   void initState() {
     super.initState();
-    _fetchTimeBlock(); // Llama al método para obtener los bloques de tiempo
+    _fetchTimeBlock(); // Obtiene el bloque de tiempo de la empresa
   }
 
-  // Método para obtener el bloque de tiempo de la empresa y generar las horas disponibles
+  // Método para obtener el bloque de tiempo de la empresa
   Future<void> _fetchTimeBlock() async {
+    setState(() {
+      isLoading = true; // Activar el indicador de carga
+    });
+
     try {
       TimeBlock? timeBlock =
           await _timeBlockService.getTimeBlockByCompanyId(widget.companyId);
@@ -35,6 +42,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       }
     } catch (error) {
       print('Error al obtener el bloque de tiempo: $error');
+    } finally {
+      setState(() {
+        isLoading =
+            false; // Desactivar el indicador de carga después de obtener los datos
+      });
     }
   }
 
@@ -57,26 +69,49 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     });
   }
 
-  // Método para seleccionar una fecha
+  // Método para seleccionar la fecha
   Future<void> _selectDate(BuildContext context) async {
-    DateTime initialDate = DateTime.now();
     DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: initialDate,
-      firstDate: initialDate, // Solo fechas a partir de hoy
+      initialDate: selectedDate,
+      firstDate: DateTime.now(),
       lastDate: DateTime(2100),
-      locale: const Locale('es', 'ES'), // Asegúrate de usar la localización
       builder: (BuildContext context, Widget? child) {
         return Theme(
-          data: ThemeData.light(), // Puedes cambiar el tema si deseas
+          data: ThemeData.light(), // Cambiar el tema si se requiere
           child: child!,
         );
       },
     );
 
-    if (pickedDate != null && pickedDate != initialDate) {
+    if (pickedDate != null && pickedDate != selectedDate) {
       setState(() {
-        formattedDate = DateFormat('dd/MM/yy').format(pickedDate);
+        selectedDate = pickedDate;
+        formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
+        selectedHours.clear(); // Deseleccionar horarios al cambiar de fecha
+        _fetchTimeBlock(); // Volver a cargar los horarios para la nueva fecha
+      });
+    }
+  }
+
+  // Método para avanzar al siguiente día
+  void _nextDay() {
+    setState(() {
+      selectedDate = selectedDate.add(const Duration(days: 1));
+      formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
+      selectedHours.clear(); // Deseleccionar horarios al avanzar de día
+      _fetchTimeBlock(); // Volver a cargar los horarios para la nueva fecha
+    });
+  }
+
+  // Método para retroceder al día anterior
+  void _previousDay() {
+    if (selectedDate.isAfter(DateTime.now())) {
+      setState(() {
+        selectedDate = selectedDate.subtract(const Duration(days: 1));
+        formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
+        selectedHours.clear(); // Deseleccionar horarios al retroceder de día
+        _fetchTimeBlock(); // Volver a cargar los horarios para la nueva fecha
       });
     }
   }
@@ -99,61 +134,75 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(0.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDaySelector(),
+            GestureDetector(
+              onTap: () =>
+                  _selectDate(context), // Abre el calendario al hacer clic
+              child: _buildDaySelector(),
+            ),
             const SizedBox(height: 20),
             Expanded(
-              child: ListView.builder(
-                itemCount: availableHours.length,
-                itemBuilder: (context, index) {
-                  String hour = availableHours[index];
-                  return _buildTimeSlot(hour);
-                },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: isLoading
+                    ? const Center(
+                        child:
+                            CircularProgressIndicator(), // Indicador de carga
+                      )
+                    : ListView.builder(
+                        itemCount: availableHours.length,
+                        itemBuilder: (context, index) {
+                          String hour = availableHours[index];
+                          return _buildTimeSlot(hour);
+                        },
+                      ),
               ),
             ),
             const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Aquí puedes manejar la reserva o el siguiente paso
-                      print('Horarios seleccionados: $selectedHours');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryYellow,
-                    ),
-                    child: const Text(
-                      'Seleccionar',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: AppTheme.secondaryBlack,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        print('Horarios seleccionados: $selectedHours');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryYellow,
+                      ),
+                      child: const Text(
+                        'Seleccionar',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppTheme.secondaryBlack,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // Volver atrás
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.secondaryGray2,
-                    ),
-                    child: const Text(
-                      'Cancelar',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: AppTheme.secondaryBlack,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Volver atrás
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.secondaryGray2,
+                      ),
+                      child: const Text(
+                        'Cancelar',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppTheme.secondaryBlack,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -161,45 +210,38 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
-  // Mostrar solo la fecha de hoy y el botón para seleccionar otra fecha
+  // Mostrar la fecha seleccionada y los botones de avanzar/retroceder
   Widget _buildDaySelector() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryYellow,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Text(
-                'HOY',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Text(
+    return Container(
+      color: const Color(0xFFEBA50A).withOpacity(0.7), // Fondo con opacidad
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back,
+                color: Colors.white), // Flecha blanca
+            onPressed: _previousDay,
+          ),
+          Expanded(
+            child: AutoSizeText(
               formattedDate,
+              textAlign: TextAlign.center,
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: 24, // Tamaño más grande
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: Colors.white,
               ),
+              maxLines: 1,
             ),
-          ],
-        ),
-        IconButton(
-          onPressed: () {
-            _selectDate(context); // Abre el selector de fecha
-          },
-          icon: const Icon(Icons.calendar_today, color: Colors.black),
-        ),
-      ],
+          ),
+          IconButton(
+            icon: const Icon(Icons.arrow_forward,
+                color: Colors.white), // Flecha blanca
+            onPressed: _nextDay,
+          ),
+        ],
+      ),
     );
   }
 
@@ -215,19 +257,19 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               Text(
                 hour,
                 style: const TextStyle(
-                  fontSize: 16, // Aumentado el tamaño de las horas
+                  fontSize: 16,
                   color: Colors.black,
                 ),
               ),
               Container(
                 width: 2,
-                height: 40, // Ajuste de la longitud de la línea
-                color: const Color(0xFFFFD465), // Color de la línea
+                height: 40,
+                color: const Color(0xFFFFD465),
               ),
               Text(
                 _getNextHour(hour),
                 style: const TextStyle(
-                  fontSize: 16, // Aumentado el tamaño de las horas
+                  fontSize: 16,
                   color: Colors.black,
                 ),
               ),
@@ -252,13 +294,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   border: Border(
                     left: BorderSide(
                       color: const Color(0xFFFBBF24),
-                      width: 4, // Solo borde izquierdo
+                      width: 4,
                     ),
                   ),
                   borderRadius: isSelected
-                      ? BorderRadius.circular(
-                          10) // Redondeado para seleccionado
-                      : BorderRadius.zero, // Sin redondeado para disponible
+                      ? BorderRadius.circular(10)
+                      : BorderRadius.zero,
                 ),
                 child: Align(
                   alignment: Alignment.centerLeft,
@@ -268,7 +309,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       isSelected ? 'Seleccionado' : 'Disponible',
                       style: const TextStyle(
                         color: Colors.black,
-                        fontSize: 18, // Aumentado el tamaño del texto
+                        fontSize: 18,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -282,7 +323,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     );
   }
 
-  // Método para obtener la siguiente hora para el intervalo
+  // Método para obtener la siguiente hora del intervalo
   String _getNextHour(String hour) {
     DateTime currentTime = DateFormat.Hm().parse(hour);
     DateTime nextTime = currentTime.add(const Duration(hours: 1));
