@@ -7,7 +7,6 @@ import 'package:carga_sin_estres_flutter/ui/screens/reservations/history.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
-  // Asegura que el binding de Flutter esté inicializado
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(const MainApp());

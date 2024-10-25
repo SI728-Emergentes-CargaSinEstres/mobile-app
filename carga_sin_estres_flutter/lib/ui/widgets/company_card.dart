@@ -59,6 +59,8 @@ class CompanyCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         fontSize: 16.0,
                       ),
+                      overflow: TextOverflow.visible,
+                      maxLines: 2,
                     ),
                     const SizedBox(height: 8.0),
                     Row(
@@ -66,7 +68,12 @@ class CompanyCard extends StatelessWidget {
                         const Icon(Icons.location_on,
                             color: Colors.orange, size: 16.0),
                         const SizedBox(width: 4),
-                        Text(company.direction),
+                        Flexible(
+                          child: Text(
+                            company.direction,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     ),
                   ],
