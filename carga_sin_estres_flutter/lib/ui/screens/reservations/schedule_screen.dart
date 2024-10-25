@@ -15,9 +15,9 @@ class ScheduleScreen extends StatefulWidget {
 
 class _ScheduleScreenState extends State<ScheduleScreen> {
   List<String> availableHours = [];
-  List<String> selectedHours = [];
+  String? selectedHour; // Cambiado para que solo se permita una selección
   DateTime selectedDate = DateTime.now();
-  String formattedDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+  String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   bool isLoading = true;
 
   final TimeBlockService _timeBlockService = TimeBlockService();
@@ -87,8 +87,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     if (pickedDate != null && pickedDate != selectedDate) {
       setState(() {
         selectedDate = pickedDate;
-        formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
-        selectedHours.clear(); // Deseleccionar horarios al cambiar de fecha
+        formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+        selectedHour = null; // Deseleccionar horarios al cambiar de fecha
         _fetchTimeBlock(); // Volver a cargar los horarios para la nueva fecha
       });
     }
@@ -98,8 +98,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   void _nextDay() {
     setState(() {
       selectedDate = selectedDate.add(const Duration(days: 1));
-      formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
-      selectedHours.clear(); // Deseleccionar horarios al avanzar de día
+      formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+      selectedHour = null; // Deseleccionar horarios al avanzar de día
       _fetchTimeBlock(); // Volver a cargar los horarios para la nueva fecha
     });
   }
@@ -109,8 +109,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     if (selectedDate.isAfter(DateTime.now())) {
       setState(() {
         selectedDate = selectedDate.subtract(const Duration(days: 1));
-        formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
-        selectedHours.clear(); // Deseleccionar horarios al retroceder de día
+        formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+        selectedHour = null; // Deseleccionar horarios al retroceder de día
         _fetchTimeBlock(); // Volver a cargar los horarios para la nueva fecha
       });
     }
@@ -169,7 +169,16 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        print('Horarios seleccionados: $selectedHours');
+                        if (selectedHour != null) {
+                          print({
+                            "startDate": formattedDate,
+                            "startTime": selectedHour,
+                          });
+                          Navigator.pop(
+                              context); // Regresar a la vista anterior
+                        } else {
+                          print('No se seleccionó ningún horario');
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryYellow,
@@ -246,7 +255,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   }
 
   Widget _buildTimeSlot(String hour) {
-    bool isSelected = selectedHours.contains(hour);
+    bool isSelected = selectedHour == hour;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -281,9 +290,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               onTap: () {
                 setState(() {
                   if (isSelected) {
-                    selectedHours.remove(hour);
+                    selectedHour = null;
                   } else {
-                    selectedHours.add(hour);
+                    selectedHour = hour;
                   }
                 });
               },

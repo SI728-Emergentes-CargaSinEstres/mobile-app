@@ -15,89 +15,83 @@ class CompanyDetailsScreen extends StatefulWidget {
 }
 
 class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
-  String? selectedRegion;
-  String? selectedProvince;
-  String? selectedDistrict;
+  // Variables para la Dirección de Origen
+  String? selectedOriginRegion;
+  String? selectedOriginProvince;
+  String? selectedOriginDistrict;
+  List<String> originRegions = [];
+  List<String> originProvinces = [];
+  List<String> originDistricts = [];
 
-  // Listas para almacenar las opciones dinámicas de región, provincia y distrito
-  List<String> regions = [];
-  List<String> provinces = [];
-  List<String> districts = [];
+  // Variables para la Dirección de Destino
+  String? selectedDestinationRegion;
+  String? selectedDestinationProvince;
+  String? selectedDestinationDistrict;
+  List<String> destinationRegions = [];
+  List<String> destinationProvinces = [];
+  List<String> destinationDistricts = [];
 
-  bool isLoading = false; // Variable para indicar si está cargando datos
-
-  final UbigeoService _ubigeoService =
-      UbigeoService(); // Instancia del servicio de Ubigeo
+  final UbigeoService _ubigeoService = UbigeoService();
 
   @override
   void initState() {
     super.initState();
-    _fetchRegions(); // Llamar al servicio para obtener las regiones
+    _fetchRegions(isOrigin: true);
+    _fetchRegions(isOrigin: false);
   }
 
-  // Método para obtener los departamentos (regiones)
-  Future<void> _fetchRegions() async {
-    setState(() {
-      isLoading = true;
-    });
+  Future<void> _fetchRegions({required bool isOrigin}) async {
     try {
       List<String> data = await _ubigeoService.fetchDepartments();
       setState(() {
-        regions = data;
-        isLoading = false;
+        if (isOrigin) {
+          originRegions = data;
+        } else {
+          destinationRegions = data;
+        }
       });
     } catch (error) {
       print('Error al obtener los departamentos: $error');
-      setState(() {
-        isLoading = false;
-      });
     }
   }
 
-  // Método para obtener las provincias
-  Future<void> _fetchProvinces(String department) async {
-    setState(() {
-      isLoading = true;
-      provinces.clear(); // Limpiar provincias al seleccionar una nueva región
-      districts.clear(); // Limpiar distritos
-      selectedProvince = null;
-      selectedDistrict = null;
-    });
-
+  Future<void> _fetchProvinces(
+      {required String department, required bool isOrigin}) async {
     try {
       List<String> data = await _ubigeoService.fetchProvinces(department);
       setState(() {
-        provinces = data;
-        isLoading = false;
+        if (isOrigin) {
+          originProvinces = data;
+          originDistricts.clear();
+          selectedOriginProvince = null;
+          selectedOriginDistrict = null;
+        } else {
+          destinationProvinces = data;
+          destinationDistricts.clear();
+          selectedDestinationProvince = null;
+          selectedDestinationDistrict = null;
+        }
       });
     } catch (error) {
       print('Error al obtener las provincias: $error');
-      setState(() {
-        isLoading = false;
-      });
     }
   }
 
-  // Método para obtener los distritos
-  Future<void> _fetchDistricts(String province) async {
-    setState(() {
-      isLoading = true;
-      districts.clear(); // Limpiar distritos al seleccionar una nueva provincia
-      selectedDistrict = null;
-    });
-
+  Future<void> _fetchDistricts(
+      {required String province, required bool isOrigin}) async {
     try {
       List<Map<String, dynamic>> data =
           await _ubigeoService.fetchDistricts(province);
       setState(() {
-        districts = data.map((d) => d['distrito'] as String).toList();
-        isLoading = false;
+        if (isOrigin) {
+          originDistricts = data.map((d) => d['distrito'] as String).toList();
+        } else {
+          destinationDistricts =
+              data.map((d) => d['distrito'] as String).toList();
+        }
       });
     } catch (error) {
       print('Error al obtener los distritos: $error');
-      setState(() {
-        isLoading = false;
-      });
     }
   }
 
@@ -183,7 +177,7 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
               style: TextStyle(fontSize: 16, color: AppTheme.secondaryGray),
             ),
             const SizedBox(height: 8),
-            _buildFDropdownAddress(),
+            _buildFDropdownAddress(isOrigin: true),
             const SizedBox(height: 8),
             _buildTextField(),
             const SizedBox(height: 24),
@@ -192,7 +186,7 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
               style: TextStyle(fontSize: 16, color: AppTheme.secondaryGray),
             ),
             const SizedBox(height: 8),
-            _buildFDropdownAddress(),
+            _buildFDropdownAddress(isOrigin: false),
             const SizedBox(height: 8),
             _buildTextField(),
             const SizedBox(height: 30),
@@ -349,47 +343,66 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
     );
   }
 
-  Widget _buildFDropdownAddress() {
+  Widget _buildFDropdownAddress({required bool isOrigin}) {
     return Column(
       children: [
         _buildDropdown(
           hintText: 'Región',
-          value: selectedRegion, // Añadir el valor seleccionado
-          items: regions,
+          value: isOrigin ? selectedOriginRegion : selectedDestinationRegion,
+          items: isOrigin ? originRegions : destinationRegions,
           onChanged: (value) {
-            if (value != selectedRegion) {
+            if (isOrigin) {
               setState(() {
-                selectedRegion = value;
-                selectedProvince = null;
-                selectedDistrict = null;
+                selectedOriginRegion = value;
+                selectedOriginProvince = null;
+                selectedOriginDistrict = null;
               });
-              _fetchProvinces(value!);
+              _fetchProvinces(department: value!, isOrigin: true);
+            } else {
+              setState(() {
+                selectedDestinationRegion = value;
+                selectedDestinationProvince = null;
+                selectedDestinationDistrict = null;
+              });
+              _fetchProvinces(department: value!, isOrigin: false);
             }
           },
         ),
         const SizedBox(height: 10),
         _buildDropdown(
           hintText: 'Provincia',
-          value: selectedProvince, // Añadir el valor seleccionado
-          items: provinces,
+          value:
+              isOrigin ? selectedOriginProvince : selectedDestinationProvince,
+          items: isOrigin ? originProvinces : destinationProvinces,
           onChanged: (value) {
-            if (value != selectedProvince) {
+            if (isOrigin) {
               setState(() {
-                selectedProvince = value;
-                selectedDistrict = null;
+                selectedOriginProvince = value;
+                selectedOriginDistrict = null;
               });
-              _fetchDistricts(value!);
+              _fetchDistricts(province: value!, isOrigin: true);
+            } else {
+              setState(() {
+                selectedDestinationProvince = value;
+                selectedDestinationDistrict = null;
+              });
+              _fetchDistricts(province: value!, isOrigin: false);
             }
           },
         ),
         const SizedBox(height: 10),
         _buildDropdown(
           hintText: 'Distrito',
-          value: selectedDistrict, // Añadir el valor seleccionado
-          items: districts,
+          value:
+              isOrigin ? selectedOriginDistrict : selectedDestinationDistrict,
+          items: isOrigin ? originDistricts : destinationDistricts,
           onChanged: (value) {
             setState(() {
-              selectedDistrict = value;
+              if (isOrigin) {
+                selectedOriginDistrict = value;
+              } else {
+                selectedDestinationDistrict = value;
+              }
             });
           },
         ),
@@ -399,14 +412,12 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
 
   Widget _buildDropdown({
     required String hintText,
-    required String? value, // El valor seleccionado
+    required String? value,
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
     return DropdownButtonFormField<String>(
-      value: value != null && items.contains(value)
-          ? value
-          : null, // Verifica si el valor está en la lista
+      value: value != null && items.contains(value) ? value : null,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: const TextStyle(color: AppTheme.secondaryGray3),
@@ -423,11 +434,7 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
           child: Text(value),
         );
       }).toList(),
-      onChanged: (selectedValue) {
-        if (selectedValue != value) {
-          onChanged(selectedValue);
-        }
-      },
+      onChanged: onChanged,
     );
   }
 
