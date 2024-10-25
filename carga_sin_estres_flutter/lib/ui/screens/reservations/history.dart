@@ -1,7 +1,10 @@
+import 'package:carga_sin_estres_flutter/data/models/reservation.dart';
+import 'package:carga_sin_estres_flutter/data/services/history_service.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/reservations/chat.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/custom_bottom_navigation_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -12,6 +15,33 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   String _reservationStatusTab = 'Nuevos';
+  List<Reservation> reservations = [];
+  //int? userId;
+  int userId = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchReservations();
+  }
+
+  Future<void> _fetchReservations() async {
+    //SharedPreferences prefs = await SharedPreferences.getInstance();
+    //userId = prefs.getInt('userId');
+    if (userId != null) {
+      try {
+        final historyService = HistoryService();
+        final fetchedReservations =
+            await historyService.getReservationsByCustomerId(userId!);
+        setState(() {
+          reservations = fetchedReservations;
+        });
+        print("Las reservas aqui: $reservations");
+      } catch (e) {
+        print("Error: $e");
+      }
+    }
+  }
 
   void _setActiveTab(String tab) {
     setState(() {
