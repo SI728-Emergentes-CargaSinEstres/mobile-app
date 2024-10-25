@@ -1,6 +1,7 @@
 import 'package:carga_sin_estres_flutter/data/models/reservation.dart';
 import 'package:carga_sin_estres_flutter/data/services/history_service.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/reservations/chat.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/reservation_card.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/custom_bottom_navigation_bar.dart';
@@ -16,7 +17,6 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   String _reservationStatusTab = 'Nuevos';
   List<Reservation> reservations = [];
-  //int? userId;
   int userId = 1;
 
   @override
@@ -26,13 +26,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Future<void> _fetchReservations() async {
-    //SharedPreferences prefs = await SharedPreferences.getInstance();
-    //userId = prefs.getInt('userId');
     if (userId != null) {
       try {
         final historyService = HistoryService();
         final fetchedReservations =
-            await historyService.getReservationsByCustomerId(userId!);
+            await historyService.getReservationsByCustomerId(userId);
         setState(() {
           reservations = fetchedReservations;
         });
@@ -41,6 +39,28 @@ class _HistoryScreenState extends State<HistoryScreen> {
         print("Error: $e");
       }
     }
+  }
+
+  List<Reservation> _filteredReservations() {
+    if (_reservationStatusTab == 'Nuevos') {
+      return reservations
+          .where((reservation) => reservation.status == 'solicited')
+          .toList();
+    } else if (_reservationStatusTab == 'Completados') {
+      return reservations
+          .where((reservation) =>
+              reservation.status == 'finalized' ||
+              reservation.status == 'cancelled')
+          .toList();
+    } else if (_reservationStatusTab == 'Pendientes') {
+      return reservations
+          .where((reservation) =>
+              reservation.status != 'finalized' &&
+              reservation.status != 'cancelled' &&
+              reservation.status != 'solicited')
+          .toList();
+    }
+    return reservations;
   }
 
   void _setActiveTab(String tab) {
@@ -100,20 +120,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ),
           Expanded(
-            child: ListView(
-              children: [
-                _buildReservationCard(
-                  context,
-                  startDate: 'Viernes 26/01/2024',
-                  startTime: '11:00 hs',
-                  endDate: 'Viernes 26/01/2024',
-                  endTime: '14:00 hs',
-                  origin: 'Av. Javier Prado Este 4200, Santiago de Surco',
-                  destination: 'Prolongación Primavera 2390, Santiago de Surco',
-                ),
-              ],
+            child: ListView.builder(
+              itemCount: _filteredReservations().length,
+              itemBuilder: (context, index) {
+                final reservation = _filteredReservations()[index];
+                return ReservationCard(reservation: reservation);
+              },
             ),
-          ),
+          )
         ],
       ),
       bottomNavigationBar: const CustomBottomNavigationBar(),
@@ -138,125 +152,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildReservationCard(
-    BuildContext context, {
-    required String startDate,
-    required String startTime,
-    required String endDate,
-    required String endTime,
-    required String origin,
-    required String destination,
-  }) {
-    return Card(
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      margin: const EdgeInsets.all(16.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Fecha de inicio del servicio:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4.0),
-            Text('$startDate $startTime'),
-            const SizedBox(height: 16.0),
-            const Text(
-              'Fecha de finalización del servicio:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4.0),
-            Text('$endDate $endTime'),
-            const Divider(height: 24.0, thickness: 1.0),
-            Row(
-              children: [
-                _buildLocationIcon(Colors.purple),
-                const SizedBox(width: 8.0),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Origen',
-                        style: TextStyle(
-                            color: Colors.purple, fontWeight: FontWeight.bold),
-                      ),
-                      Text(origin),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16.0),
-            Row(
-              children: [
-                _buildLocationIcon(Colors.orange),
-                const SizedBox(width: 8.0),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Destino',
-                        style: TextStyle(
-                            color: Colors.orange, fontWeight: FontWeight.bold),
-                      ),
-                      Text(destination),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const Divider(height: 24.0, thickness: 1.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildActionButton(Icons.chat, 'Ver chat', () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ChatScreen(),
-                    ),
-                  );
-                }),
-                _buildActionButton(Icons.details, 'Ver detalles', () {}),
-                _buildActionButton(Icons.assignment, 'Contrato', () {}),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLocationIcon(Color color) {
-    return CircleAvatar(
-      radius: 10.0,
-      backgroundColor: color.withOpacity(0.2),
-      child: CircleAvatar(
-        radius: 6.0,
-        backgroundColor: color,
-      ),
-    );
-  }
-
-  Widget _buildActionButton(IconData icon, String label, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Icon(icon, color: Colors.grey),
-          const SizedBox(height: 4.0),
-          Text(label, style: const TextStyle(color: Colors.grey)),
-        ],
       ),
     );
   }
