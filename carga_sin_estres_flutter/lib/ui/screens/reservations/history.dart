@@ -1,6 +1,5 @@
 import 'package:carga_sin_estres_flutter/data/models/reservation.dart';
 import 'package:carga_sin_estres_flutter/data/services/history_service.dart';
-import 'package:carga_sin_estres_flutter/ui/screens/reservations/chat.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/reservation_card.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:flutter/material.dart';

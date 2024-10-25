@@ -1,4 +1,6 @@
 import 'package:carga_sin_estres_flutter/data/models/reservation.dart';
+import 'package:carga_sin_estres_flutter/data/services/rating_service.dart';
+import 'package:carga_sin_estres_flutter/data/services/company_service.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/reservations/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -16,6 +18,8 @@ class _ReservationCardState extends State<ReservationCard> {
   bool _isDetailsExpanded = false;
   bool _isRatingExpanded = false;
   int? _rating;
+  final RatingService _ratingService = RatingService();
+  final CompanyService _companyService = CompanyService();
 
   @override
   Widget build(BuildContext context) {
@@ -178,9 +182,19 @@ class _ReservationCardState extends State<ReservationCard> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_rating != null) {
-                      print('Rating enviado: $_rating');
+                      try {
+                        final company = await _companyService
+                            .getCompanyByName(widget.reservation.companyName);
+                        await _ratingService.postRatingByCompanyId(
+                          company.id,
+                          _rating!,
+                        );
+                        print('Rating enviado: $_rating');
+                      } catch (e) {
+                        print('Error: $e');
+                      }
                       setState(() {
                         _rating = null;
                       });
@@ -202,7 +216,6 @@ class _ReservationCardState extends State<ReservationCard> {
                     _isRatingExpanded = false;
                   });
                 }),
-                // Botón "Calificar servicio"
                 if (widget.reservation.status == 'finalized')
                   _buildActionButton(Icons.star, 'Calificar servicio', () {
                     setState(() {
