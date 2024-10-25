@@ -44,13 +44,28 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
   String? startDate;
   String? startTime;
 
+  String? selectedServiceType;
+  List<String> serviceTypes = [];
+
   final UbigeoService _ubigeoService = UbigeoService();
+
+  Future<void> _fetchCompanyServices() async {
+    try {
+      // Obtener los servicios desde la empresa seleccionada
+      setState(() {
+        serviceTypes = widget.company.services.map((s) => s.name).toList();
+      });
+    } catch (error) {
+      print('Error al obtener los servicios de la empresa: $error');
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _fetchRegions(isOrigin: true);
     _fetchRegions(isOrigin: false);
+    _fetchCompanyServices(); // Nueva línea para obtener los tipos de servicios
   }
 
   @override
@@ -234,6 +249,36 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
             _buildFDropdownAddress(isOrigin: false),
             const SizedBox(height: 8),
             _buildTextField(isOrigin: false),
+            const SizedBox(height: 16),
+            const Text(
+              'Tipo de servicio',
+              style: TextStyle(fontSize: 16, color: AppTheme.secondaryGray),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              value: selectedServiceType,
+              decoration: InputDecoration(
+                hintText: 'Selecciona el tipo de servicio',
+                hintStyle: const TextStyle(color: AppTheme.secondaryGray3),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              items: serviceTypes.map((String service) {
+                return DropdownMenuItem<String>(
+                  value: service,
+                  child: Text(service),
+                );
+              }).toList(),
+              onChanged: (String? value) {
+                setState(() {
+                  selectedServiceType = value;
+                });
+              },
+            ),
             const SizedBox(height: 30),
             SizedBox(
               width: double.infinity,
@@ -302,6 +347,8 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
                             destinationAddress: destinationAddress,
                             startDate: startDate!,
                             startTime: startTime!,
+                            services:
+                                selectedServiceType!, // Añadido el tipo de servicio seleccionado
                           );
 
                           // Obtener el customerId desde SharedPreferences

@@ -14,7 +14,7 @@ class Reservation {
     required this.destinationAddress,
     required this.startDate,
     required this.startTime,
-    this.services = "transporte", // Asignar por defecto "Transporte"
+    required this.services,
   });
 
   Map<String, dynamic> toJson() {
