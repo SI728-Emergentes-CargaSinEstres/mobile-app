@@ -2,6 +2,8 @@ import 'package:carga_sin_estres_flutter/data/models/reservation.dart';
 import 'package:carga_sin_estres_flutter/data/services/rating_service.dart';
 import 'package:carga_sin_estres_flutter/data/services/company_service.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/reservations/chat.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/delete_dialog.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/message_dialog.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -176,7 +178,14 @@ class _ReservationCardState extends State<ReservationCard> {
                   width: double.infinity,
                   child: TextButton(
                     onPressed: () {
-                      // Lógica para cancelar la solicitud
+                      deleteDialog(
+                        context,
+                        '¿Estás seguro de que deseas eliminar la solicitud?',
+                        'Eliminar solicitud',
+                        () {
+                          // Lógica para cancelar la solicitud
+                        },
+                      );
                     },
                     style: TextButton.styleFrom(
                       backgroundColor: Colors.transparent,
@@ -200,7 +209,14 @@ class _ReservationCardState extends State<ReservationCard> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        // Lógica para aceptar cambios
+                        messageDialog(
+                          context,
+                          '¿Estás seguro de que deseas aceptar los cambios?',
+                          'Aceptar cambios',
+                          () {
+                            // Lógica para aceptar cambios
+                          },
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryYellow,
@@ -215,7 +231,14 @@ class _ReservationCardState extends State<ReservationCard> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        // Lógica para rechazar cambios
+                        deleteDialog(
+                          context,
+                          '¿Estás seguro de que deseas rechazar los cambios?',
+                          'Rechazar cambios',
+                          () {
+                            // Lógica para rechazar cambios
+                          },
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.secondaryRed,
