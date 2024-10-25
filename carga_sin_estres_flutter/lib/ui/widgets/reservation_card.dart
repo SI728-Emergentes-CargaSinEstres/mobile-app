@@ -1,4 +1,5 @@
 import 'package:carga_sin_estres_flutter/data/models/reservation.dart';
+import 'package:carga_sin_estres_flutter/data/services/history_service.dart';
 import 'package:carga_sin_estres_flutter/data/services/rating_service.dart';
 import 'package:carga_sin_estres_flutter/data/services/company_service.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/reservations/chat.dart';
@@ -23,6 +24,7 @@ class _ReservationCardState extends State<ReservationCard> {
   int? _rating;
   final RatingService _ratingService = RatingService();
   final CompanyService _companyService = CompanyService();
+  final HistoryService _historyService = HistoryService();
 
   @override
   Widget build(BuildContext context) {
@@ -182,8 +184,15 @@ class _ReservationCardState extends State<ReservationCard> {
                         context,
                         '¿Estás seguro de que deseas eliminar la solicitud?',
                         'Eliminar solicitud',
-                        () {
-                          // Lógica para cancelar la solicitud
+                        () async {
+                          try {
+                            await _historyService.updateReservationStatus(
+                              widget.reservation.id,
+                              'cancelled',
+                            );
+                          } catch (error) {
+                            print('Error: $error');
+                          }
                         },
                       );
                     },
@@ -213,8 +222,15 @@ class _ReservationCardState extends State<ReservationCard> {
                           context,
                           '¿Estás seguro de que deseas aceptar los cambios?',
                           'Aceptar cambios',
-                          () {
-                            // Lógica para aceptar cambios
+                          () async {
+                            try {
+                              await _historyService.updateReservationStatus(
+                                widget.reservation.id,
+                                'scheduled',
+                              );
+                            } catch (error) {
+                              print('Error: $error');
+                            }
                           },
                         );
                       },
@@ -235,8 +251,15 @@ class _ReservationCardState extends State<ReservationCard> {
                           context,
                           '¿Estás seguro de que deseas rechazar los cambios?',
                           'Rechazar cambios',
-                          () {
-                            // Lógica para rechazar cambios
+                          () async {
+                            try {
+                              await _historyService.updateReservationStatus(
+                                widget.reservation.id,
+                                'cancelled',
+                              );
+                            } catch (error) {
+                              print('Error: $error');
+                            }
                           },
                         );
                       },

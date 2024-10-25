@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
           customer = fetchedCustomer;
         });
       } catch (e) {
-        print('Error al obtener el customer: $e');
+        print('Error al obtener el cliente: $e');
       }
     }
   }

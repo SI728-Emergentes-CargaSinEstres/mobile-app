@@ -24,10 +24,10 @@ class HistoryService {
 
   Future<void> updateReservationStatus(int id, String status) async {
     final response = await http.patch(
-      Uri.parse('$baseUrl/reservations/$id/status'),
+      Uri.parse('$baseUrl/reservations/$id/status?status=$status'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'id' 'status': status}),
     );
+
     if (response.statusCode != 200) {
       final Map<String, dynamic> responseBody = jsonDecode(response.body);
       final errorMessage =

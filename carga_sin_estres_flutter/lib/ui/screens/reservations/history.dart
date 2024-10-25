@@ -16,7 +16,7 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   String _reservationStatusTab = 'Nuevos';
   List<Reservation> reservations = [];
-  int userId = 1;
+  int? userId;
 
   @override
   void initState() {
@@ -25,15 +25,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Future<void> _fetchReservations() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('userId');
     if (userId != null) {
       try {
         final historyService = HistoryService();
         final fetchedReservations =
-            await historyService.getReservationsByCustomerId(userId);
+            await historyService.getReservationsByCustomerId(userId!);
         setState(() {
           reservations = fetchedReservations;
         });
-        print("Las reservas aqui: $reservations");
       } catch (e) {
         print("Error: $e");
       }
@@ -119,14 +120,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: _filteredReservations().length,
-              itemBuilder: (context, index) {
-                final reservation = _filteredReservations()[index];
-                return ReservationCard(reservation: reservation);
-              },
-            ),
-          )
+            child: _filteredReservations().isEmpty
+                ? const Center(
+                    child: Text(
+                      'No se encontraron servicios reservados',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: AppTheme.secondaryGray,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: _filteredReservations().length,
+                    itemBuilder: (context, index) {
+                      final reservation = _filteredReservations()[index];
+                      return ReservationCard(reservation: reservation);
+                    },
+                  ),
+          ),
         ],
       ),
       bottomNavigationBar: const CustomBottomNavigationBar(),
