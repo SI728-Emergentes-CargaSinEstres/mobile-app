@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:carga_sin_estres_flutter/data/models/reservation_model.dart';
 import 'package:carga_sin_estres_flutter/data/services/reservation_service.dart';
 import 'package:carga_sin_estres_flutter/data/services/ubigeo_service.dart';
@@ -323,6 +325,12 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
                           print('Fecha: $startDate');
                           print('Hora: $startTime');
 
+// Crear la reserva
+                          final String reservationJson =
+                              jsonEncode(reservation.toJson());
+                          print(
+                              'JSON de la reserva que se envía al backend: $reservationJson');
+
                           // Crear la reserva
                           await ReservationService().createReservation(
                             customerId: customerId,
@@ -334,6 +342,9 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content: Text('Reserva creada con éxito'),
                           ));
+
+                          // Navegar a la vista de historial de reservas
+                          Navigator.pushReplacementNamed(context, '/history');
                         } catch (e) {
                           print('Error al crear la reserva: $e');
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(

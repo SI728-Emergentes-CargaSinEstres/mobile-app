@@ -19,8 +19,9 @@ class ReservationService {
       body: jsonEncode(reservation.toJson()),
     );
 
-    if (response.statusCode != 200) {
-      throw Exception('Error al crear la reserva');
+    // Aceptar códigos de estado 200 y 201 como éxito
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Error al crear la reserva: ${response.body}');
     }
   }
 }
