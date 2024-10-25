@@ -21,4 +21,18 @@ class HistoryService {
       throw errorMessage;
     }
   }
+
+  Future<void> updateReservationStatus(int id, String status) async {
+    final response = await http.patch(
+      Uri.parse('$baseUrl/reservations/$id/status'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'id' 'status': status}),
+    );
+    if (response.statusCode != 200) {
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      final errorMessage =
+          responseBody['message'] ?? 'Failed to update reservation status';
+      throw errorMessage;
+    }
+  }
 }

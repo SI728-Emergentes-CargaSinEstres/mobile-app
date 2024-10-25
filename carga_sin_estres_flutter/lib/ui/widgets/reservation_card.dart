@@ -2,6 +2,7 @@ import 'package:carga_sin_estres_flutter/data/models/reservation.dart';
 import 'package:carga_sin_estres_flutter/data/services/rating_service.dart';
 import 'package:carga_sin_estres_flutter/data/services/company_service.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/reservations/chat.dart';
+import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -46,21 +47,38 @@ class _ReservationCardState extends State<ReservationCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Fecha de inicio del servicio:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4.0),
-            Text(formatDateTime(
-                widget.reservation.startDate, widget.reservation.startTime)),
-            const SizedBox(height: 16.0),
-            const Text(
-              'Fecha de finalización del servicio:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4.0),
-            Text(formatDateTime(widget.reservation.endDate ?? DateTime.now(),
-                widget.reservation.endTime ?? '00:00')),
+            if (widget.reservation.status == 'finalized' ||
+                widget.reservation.status == 'cancelled') ...[
+              const Text(
+                'Fecha de inicio del servicio:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4.0),
+              Text(formatDateTime(
+                widget.reservation.startDate,
+                widget.reservation.startTime,
+              )),
+              const SizedBox(height: 16.0),
+              const Text(
+                'Fecha de finalización del servicio:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4.0),
+              Text(formatDateTime(
+                widget.reservation.endDate ?? DateTime.now(),
+                widget.reservation.endTime ?? '00:00',
+              )),
+            ] else ...[
+              const Text(
+                'Fecha para realizar el servicio:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4.0),
+              Text(formatDateTime(
+                widget.reservation.startDate,
+                widget.reservation.startTime,
+              )),
+            ],
             const Divider(height: 24.0, thickness: 1.0),
             Row(
               children: [
@@ -147,6 +165,68 @@ class _ReservationCardState extends State<ReservationCard> {
                                                 'finalized'
                                             ? 'Finalizado'
                                             : widget.reservation.status,
+              ),
+
+              // ---------- Cancelar solicitud, solo visible si el estado no es 'finalized', 'cancelled' o 'in progress'
+              if (widget.reservation.status != 'finalized' &&
+                  widget.reservation.status != 'cancelled' &&
+                  widget.reservation.status != 'in progress') ...[
+                const SizedBox(height: 16.0),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () {
+                      // Lógica para cancelar la solicitud
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      side: BorderSide.none,
+                    ),
+                    child: const Text('Cancelar solicitud',
+                        style: TextStyle(color: AppTheme.secondaryRed)),
+                  ),
+                ),
+              ],
+              const Divider(height: 24.0, thickness: 1.0),
+            ],
+
+            // ---------- Aceptar o Rechazar cambios, solo visible si el estado es 're-scheduled' o 'to be scheduled'
+            if (_isDetailsExpanded &&
+                (widget.reservation.status == 're-scheduled' ||
+                    widget.reservation.status == 'to be scheduled')) ...[
+              const SizedBox(height: 8.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Lógica para aceptar cambios
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryYellow,
+                      ),
+                      child: const Text(
+                        'Aceptar Cambios',
+                        style: TextStyle(color: AppTheme.secondaryBlack),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16.0),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Lógica para rechazar cambios
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.secondaryRed,
+                      ),
+                      child: const Text(
+                        'Rechazar cambios',
+                        style: TextStyle(color: AppTheme.primaryWhite),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const Divider(height: 24.0, thickness: 1.0),
             ],
