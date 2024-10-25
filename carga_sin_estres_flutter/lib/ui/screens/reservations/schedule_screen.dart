@@ -170,12 +170,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (selectedHour != null) {
-                          print({
-                            "startDate": formattedDate,
-                            "startTime": selectedHour,
+                          Navigator.pop(context, {
+                            'startDate': formattedDate,
+                            'startTime': selectedHour,
                           });
-                          Navigator.pop(
-                              context); // Regresar a la vista anterior
                         } else {
                           print('No se seleccionó ningún horario');
                         }

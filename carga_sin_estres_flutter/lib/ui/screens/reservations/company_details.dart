@@ -1,9 +1,12 @@
+import 'package:carga_sin_estres_flutter/data/models/reservation_model.dart';
+import 'package:carga_sin_estres_flutter/data/services/reservation_service.dart';
 import 'package:carga_sin_estres_flutter/data/services/ubigeo_service.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/reservations/schedule_screen.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/custom_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:carga_sin_estres_flutter/data/models/company.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CompanyDetailsScreen extends StatefulWidget {
   final Company company;
@@ -18,18 +21,26 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
   // Variables para la Dirección de Origen
   String? selectedOriginRegion;
   String? selectedOriginProvince;
-  String? selectedOriginDistrict;
+  String? selectedOriginDistrictId;
   List<String> originRegions = [];
   List<String> originProvinces = [];
-  List<String> originDistricts = [];
+  List<Map<String, dynamic>> originDistricts = [];
 
   // Variables para la Dirección de Destino
   String? selectedDestinationRegion;
   String? selectedDestinationProvince;
-  String? selectedDestinationDistrict;
+  String? selectedDestinationDistrictId;
   List<String> destinationRegions = [];
   List<String> destinationProvinces = [];
-  List<String> destinationDistricts = [];
+  List<Map<String, dynamic>> destinationDistricts = [];
+
+  // Controladores de texto para las direcciones
+  TextEditingController _originAddressController = TextEditingController();
+  TextEditingController _destinationAddressController = TextEditingController();
+
+  // Variables para la fecha y hora seleccionada
+  String? startDate;
+  String? startTime;
 
   final UbigeoService _ubigeoService = UbigeoService();
 
@@ -38,6 +49,14 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
     super.initState();
     _fetchRegions(isOrigin: true);
     _fetchRegions(isOrigin: false);
+  }
+
+  @override
+  void dispose() {
+    // Limpia los controladores cuando el widget se destruye
+    _originAddressController.dispose();
+    _destinationAddressController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchRegions({required bool isOrigin}) async {
@@ -64,12 +83,12 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
           originProvinces = data;
           originDistricts.clear();
           selectedOriginProvince = null;
-          selectedOriginDistrict = null;
+          selectedOriginDistrictId = null;
         } else {
           destinationProvinces = data;
           destinationDistricts.clear();
           selectedDestinationProvince = null;
-          selectedDestinationDistrict = null;
+          selectedDestinationDistrictId = null;
         }
       });
     } catch (error) {
@@ -84,15 +103,39 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
           await _ubigeoService.fetchDistricts(province);
       setState(() {
         if (isOrigin) {
-          originDistricts = data.map((d) => d['distrito'] as String).toList();
+          originDistricts = data;
         } else {
-          destinationDistricts =
-              data.map((d) => d['distrito'] as String).toList();
+          destinationDistricts = data;
         }
       });
     } catch (error) {
       print('Error al obtener los distritos: $error');
     }
+  }
+
+  Widget _buildDropdownDistrict({required bool isOrigin}) {
+    return DropdownButtonFormField<String>(
+      value:
+          isOrigin ? selectedOriginDistrictId : selectedDestinationDistrictId,
+      decoration: InputDecoration(hintText: 'Selecciona un distrito'),
+      items:
+          (isOrigin ? originDistricts : destinationDistricts).map((district) {
+        return DropdownMenuItem<String>(
+          value: district[
+              'distrito'], // Usamos el nombre del distrito como valor temporal
+          child: Text(district['distrito']),
+        );
+      }).toList(),
+      onChanged: (String? value) {
+        setState(() {
+          if (isOrigin) {
+            selectedOriginDistrictId = value;
+          } else {
+            selectedDestinationDistrictId = value;
+          }
+        });
+      },
+    );
   }
 
   @override
@@ -179,7 +222,7 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
             const SizedBox(height: 8),
             _buildFDropdownAddress(isOrigin: true),
             const SizedBox(height: 8),
-            _buildTextField(),
+            _buildTextField(isOrigin: true),
             const SizedBox(height: 24),
             const Text(
               'Dirección de destino',
@@ -188,19 +231,28 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
             const SizedBox(height: 8),
             _buildFDropdownAddress(isOrigin: false),
             const SizedBox(height: 8),
-            _buildTextField(),
+            _buildTextField(isOrigin: false),
             const SizedBox(height: 30),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
                           ScheduleScreen(companyId: widget.company.id),
                     ),
                   );
+
+                  if (result != null) {
+                    setState(() {
+                      startDate =
+                          result['startDate']; // Asigna la fecha seleccionada
+                      startTime =
+                          result['startTime']; // Asigna la hora seleccionada
+                    });
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryYellow,
@@ -217,7 +269,84 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      if (selectedOriginDistrictId != null &&
+                          selectedDestinationDistrictId != null &&
+                          startDate != null &&
+                          startTime != null) {
+                        try {
+                          final int? originUbigeo = _getDistrictIdByName(
+                              selectedOriginDistrictId, originDistricts);
+                          final int? destinationUbigeo = _getDistrictIdByName(
+                              selectedDestinationDistrictId,
+                              destinationDistricts);
+
+                          if (originUbigeo == null ||
+                              destinationUbigeo == null) {
+                            throw Exception(
+                                'No se pudo encontrar el id del distrito seleccionado.');
+                          }
+
+                          final String originAddress =
+                              _originAddressController.text;
+                          final String destinationAddress =
+                              _destinationAddressController.text;
+
+                          // Crear el modelo de reserva
+                          final Reservation reservation = Reservation(
+                            ubigeoOrigin: originUbigeo,
+                            originAddress: originAddress,
+                            ubigeoDestination: destinationUbigeo,
+                            destinationAddress: destinationAddress,
+                            startDate: startDate!,
+                            startTime: startTime!,
+                          );
+
+                          // Obtener el customerId desde SharedPreferences
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          final int? customerId = prefs.getInt('userId');
+
+                          if (customerId == null || customerId == 0) {
+                            throw Exception('Error: customerId no válido');
+                          }
+
+// Imprimir la información de la solicitud
+                          print(
+                              'Realizando solicitud para crear reserva con los siguientes datos:');
+                          print('Customer ID: $customerId');
+                          print('Company ID: ${widget.company.id}');
+                          print('Ubigeo Origen: $originUbigeo');
+                          print('Ubigeo Destino: $destinationUbigeo');
+                          print('Dirección Origen: $originAddress');
+                          print('Dirección Destino: $destinationAddress');
+                          print('Fecha: $startDate');
+                          print('Hora: $startTime');
+
+                          // Crear la reserva
+                          await ReservationService().createReservation(
+                            customerId: customerId,
+                            companyId: widget.company.id,
+                            reservation: reservation,
+                          );
+
+                          // Mostrar mensaje de éxito
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text('Reserva creada con éxito'),
+                          ));
+                        } catch (e) {
+                          print('Error al crear la reserva: $e');
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text('Error al crear la reserva: $e'),
+                          ));
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              'Por favor, completa todos los campos incluyendo la fecha y la hora.'),
+                        ));
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                         foregroundColor: AppTheme.secondaryBlack,
                         backgroundColor: AppTheme.secondaryGray2),
@@ -355,14 +484,14 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
               setState(() {
                 selectedOriginRegion = value;
                 selectedOriginProvince = null;
-                selectedOriginDistrict = null;
+                selectedOriginDistrictId = null;
               });
               _fetchProvinces(department: value!, isOrigin: true);
             } else {
               setState(() {
                 selectedDestinationRegion = value;
                 selectedDestinationProvince = null;
-                selectedDestinationDistrict = null;
+                selectedDestinationDistrictId = null;
               });
               _fetchProvinces(department: value!, isOrigin: false);
             }
@@ -378,13 +507,13 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
             if (isOrigin) {
               setState(() {
                 selectedOriginProvince = value;
-                selectedOriginDistrict = null;
+                selectedOriginDistrictId = null;
               });
               _fetchDistricts(province: value!, isOrigin: true);
             } else {
               setState(() {
                 selectedDestinationProvince = value;
-                selectedDestinationDistrict = null;
+                selectedDestinationDistrictId = null;
               });
               _fetchDistricts(province: value!, isOrigin: false);
             }
@@ -393,15 +522,22 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
         const SizedBox(height: 10),
         _buildDropdown(
           hintText: 'Distrito',
-          value:
-              isOrigin ? selectedOriginDistrict : selectedDestinationDistrict,
-          items: isOrigin ? originDistricts : destinationDistricts,
+          value: isOrigin
+              ? selectedOriginDistrictId
+              : selectedDestinationDistrictId,
+          items: isOrigin
+              ? originDistricts
+                  .map((district) => district['distrito'] as String)
+                  .toList()
+              : destinationDistricts
+                  .map((district) => district['distrito'] as String)
+                  .toList(),
           onChanged: (value) {
             setState(() {
               if (isOrigin) {
-                selectedOriginDistrict = value;
+                selectedOriginDistrictId = value;
               } else {
-                selectedDestinationDistrict = value;
+                selectedDestinationDistrictId = value;
               }
             });
           },
@@ -438,10 +574,14 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
     );
   }
 
-  Widget _buildTextField() {
+  Widget _buildTextField({required bool isOrigin}) {
     return TextField(
+      controller:
+          isOrigin ? _originAddressController : _destinationAddressController,
       decoration: InputDecoration(
-        hintText: 'Dirección exacta',
+        hintText: isOrigin
+            ? 'Dirección exacta de origen'
+            : 'Dirección exacta de destino',
         hintStyle: const TextStyle(color: AppTheme.secondaryGray3),
         filled: true,
         fillColor: Colors.white,
@@ -452,4 +592,20 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
       ),
     );
   }
+}
+
+int? _getDistrictIdByName(
+    String? districtName, List<Map<String, dynamic>> districts) {
+  try {
+    return districts
+        .firstWhere((district) => district['distrito'] == districtName)['id'];
+  } catch (e) {
+    print('Error al buscar el distrito: $e');
+    return null;
+  }
+}
+
+Future<int> getCustomerIdFromPreferences() async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getInt('customerId') ?? 0; // Retorna 0 si no existe
 }
