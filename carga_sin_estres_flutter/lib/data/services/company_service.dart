@@ -36,4 +36,20 @@ class CompanyService {
       throw errorMessage;
     }
   }
+
+  //get company by name
+  Future<Company> getCompanyByName(String name) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/companiesByName'),
+      headers: {'Content-Type': 'application/json'},
+    );
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      return Company.fromJson(responseBody);
+    } else {
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      final errorMessage = responseBody['message'] ?? 'Failed to get company';
+      throw errorMessage;
+    }
+  }
 }
