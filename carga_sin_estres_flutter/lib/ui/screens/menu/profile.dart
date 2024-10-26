@@ -1,9 +1,14 @@
+import 'package:carga_sin_estres_flutter/data/models/customer.dart';
+import 'package:carga_sin_estres_flutter/data/services/customer_service.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/message_dialog.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/custom_bottom_navigation_bar.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/date_of_birth_input.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/form_input.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/password_input.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -19,6 +24,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _dateOfBirthController = TextEditingController();
+
+  int? userId;
+  Customer? customer;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('userId');
+    if (userId != null) {
+      try {
+        CustomerService customerService = CustomerService();
+        Customer fetchedCustomer =
+            await customerService.getCustomerById(userId!);
+        setState(() {
+          customer = fetchedCustomer;
+
+          _firstNameController.text = '';
+          _lastNameController.text = '';
+          _phoneNumberController.text = '';
+          _emailController.text = '';
+          _passwordController.text = '';
+          _dateOfBirthController.text =
+              DateFormat('dd/MM/yyyy').format(fetchedCustomer.dateOfBirth);
+        });
+      } catch (e) {
+        print('Error al obtener el cliente: $e');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,38 +108,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 30),
                       FormInput(
-                          inputWidth: inputWidth,
-                          labelText: 'Nombres',
-                          icon: Icons.person,
-                          controller: _firstNameController),
+                        inputWidth: inputWidth,
+                        labelText: 'Nombres',
+                        icon: Icons.person,
+                        controller: _firstNameController,
+                        hintText: customer?.firstName ?? 'Cargando...',
+                      ),
                       const SizedBox(height: 20),
                       FormInput(
-                          inputWidth: inputWidth,
-                          labelText: 'Apellidos',
-                          icon: Icons.person,
-                          controller: _lastNameController),
+                        inputWidth: inputWidth,
+                        labelText: 'Apellidos',
+                        icon: Icons.person,
+                        controller: _lastNameController,
+                        hintText: customer?.lastName ?? 'Cargando...',
+                      ),
                       const SizedBox(height: 20),
                       FormInput(
-                          inputWidth: inputWidth,
-                          labelText: 'Número de celular',
-                          icon: Icons.phone,
-                          controller: _phoneNumberController),
+                        inputWidth: inputWidth,
+                        labelText: 'Número de celular',
+                        icon: Icons.phone,
+                        controller: _phoneNumberController,
+                        hintText: customer?.phoneNumber ?? 'Cargando...',
+                      ),
                       const SizedBox(height: 20),
                       DateOfBirthInput(
-                          inputWidth: inputWidth,
-                          labelText: 'Fecha de nacimiento',
-                          controller: _dateOfBirthController),
+                        inputWidth: inputWidth,
+                        labelText: 'Fecha de nacimiento',
+                        controller: _dateOfBirthController,
+                        hintText: customer?.dateOfBirth != null
+                            ? DateFormat('dd/MM/yyyy')
+                                .format(customer!.dateOfBirth)
+                            : 'Cargando...',
+                      ),
                       const SizedBox(height: 20),
                       FormInput(
-                          inputWidth: inputWidth,
-                          labelText: 'Correo electrónico',
-                          icon: Icons.email,
-                          controller: _emailController),
+                        inputWidth: inputWidth,
+                        labelText: 'Correo electrónico',
+                        icon: Icons.email,
+                        controller: _emailController,
+                        hintText: customer?.email ?? 'Cargando...',
+                      ),
                       const SizedBox(height: 20),
                       PasswordInput(
-                          inputWidth: inputWidth,
-                          labelText: 'Contraseña',
-                          controller: _passwordController),
+                        inputWidth: inputWidth,
+                        labelText: 'Contraseña',
+                        controller: _passwordController,
+                      ),
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -111,7 +164,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: inputWidth,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/login');
+                  messageDialog(
+                      context, '¿Deseas editar tu perfil?', 'Editar Perfil',
+                      () {
+                    Navigator.pushNamed(context, '/home');
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFF5757),

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
+import 'package:flutter/material.dart';
 
 class CustomBottomNavigationBar extends StatefulWidget {
   const CustomBottomNavigationBar({super.key});
@@ -31,30 +31,42 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: _selectedIndex,
-      onTap: _onItemTapped,
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: '',
-          backgroundColor: Colors.transparent,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.history),
-          label: '',
-          backgroundColor: Colors.transparent,
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: '',
-          backgroundColor: Colors.transparent,
-        ),
-      ],
-      selectedItemColor: AppTheme.primaryYellow,
-      unselectedItemColor: AppTheme.secondaryBlack,
-      showSelectedLabels: false,
-      showUnselectedLabels: false,
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.black,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8.0,
+            offset: Offset(0, -2),
+          ),
+        ],
+      ),
+      child: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home, color: Colors.white),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history, color: Colors.white),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person, color: Colors.white),
+            label: '',
+          ),
+        ],
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.grey,
+        backgroundColor: AppTheme.secondaryBlack,
+        type: BottomNavigationBarType.fixed,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        elevation: 0,
+      ),
     );
   }
 }

@@ -355,7 +355,8 @@ class _ReservationCardState extends State<ReservationCard> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ChatScreen(),
+                        builder: (context) =>
+                            ChatScreen(reservation: widget.reservation),
                       ),
                     );
                   }),

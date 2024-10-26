@@ -1,4 +1,5 @@
 import 'package:carga_sin_estres_flutter/data/models/message.dart';
+import 'package:carga_sin_estres_flutter/data/models/reservation.dart';
 import 'package:carga_sin_estres_flutter/data/services/chat_service.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/chat_bubble.dart';
@@ -8,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final Reservation reservation;
+
+  const ChatScreen({super.key, required this.reservation});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -20,6 +23,24 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final ChatService _chatService = ChatService();
   bool _hasText = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMessages();
+  }
+
+  void _loadMessages() async {
+    try {
+      final messages =
+          await _chatService.getMessagesByReservationId(widget.reservation.id);
+      setState(() {
+        _messages.addAll(messages);
+      });
+    } catch (error) {
+      print('Error loading messages: $error');
+    }
+  }
 
   @override
   void dispose() {
@@ -34,36 +55,26 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void _sendMessage(String message) {
+  void _sendMessage(String message) async {
     if (message.isEmpty) return;
 
-    // Agregar el mensaje del usuario
-    _addMessageToList(message, true);
+    try {
+      Message newMessage = await _chatService.postMessageByReservationId(
+          widget.reservation.id, message);
 
-    // Llamar al servicio de chat para recibir una respuesta automatica
-    _chatService.getResponses(message).then((responses) {
-      for (var response in responses) {
-        _addMessageToList(response.content, response.isUser);
-      }
-    });
+      _addMessageToList(newMessage);
 
-    _controller.clear();
+      _controller.clear();
+    } catch (error) {
+      print('Error sending message: $error');
+    }
   }
 
-  void _addMessageToList(String message, bool isUser) {
+  void _addMessageToList(Message message) {
     setState(() {
-      _messages.add(Message(
-        content: message,
-        time: _formatCurrentTime(),
-        isUser: isUser,
-      ));
+      _messages.add(message);
       _scrollToBottom();
     });
-  }
-
-  String _formatCurrentTime() {
-    final now = DateTime.now().toLocal();
-    return DateFormat.jm().format(now);
   }
 
   void _scrollToBottom() {
@@ -110,8 +121,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 final messageData = _messages[index];
                 return ChatBubble(
                   message: messageData.content,
-                  time: messageData.time,
-                  isUser: messageData.isUser,
+                  time: DateFormat.jm().format(messageData.messageDate),
+                  userType: messageData.userType,
                 );
               },
             ),

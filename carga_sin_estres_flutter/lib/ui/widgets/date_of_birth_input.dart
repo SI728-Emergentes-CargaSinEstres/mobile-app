@@ -6,12 +6,14 @@ class DateOfBirthInput extends StatefulWidget {
   final double inputWidth;
   final String labelText;
   final TextEditingController controller;
+  final String hintText;
 
   const DateOfBirthInput({
     super.key,
     required this.inputWidth,
     required this.labelText,
     required this.controller,
+    required this.hintText,
   });
 
   @override

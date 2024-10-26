@@ -298,9 +298,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 27),
                 decoration: BoxDecoration(
                   color: isSelected ? const Color(0xFFFFE5A4) : Colors.white,
-                  border: Border(
+                  border: const Border(
                     left: BorderSide(
-                      color: const Color(0xFFFBBF24),
+                      color: Color(0xFFFBBF24),
                       width: 4,
                     ),
                   ),
