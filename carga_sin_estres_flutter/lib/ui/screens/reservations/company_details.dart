@@ -37,8 +37,10 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
   List<Map<String, dynamic>> destinationDistricts = [];
 
   // Controladores de texto para las direcciones
-  TextEditingController _originAddressController = TextEditingController();
-  TextEditingController _destinationAddressController = TextEditingController();
+  final TextEditingController _originAddressController =
+      TextEditingController();
+  final TextEditingController _destinationAddressController =
+      TextEditingController();
 
   // Variables para la fecha y hora seleccionada
   String? startDate;
@@ -128,31 +130,6 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
     } catch (error) {
       print('Error al obtener los distritos: $error');
     }
-  }
-
-  Widget _buildDropdownDistrict({required bool isOrigin}) {
-    return DropdownButtonFormField<String>(
-      value:
-          isOrigin ? selectedOriginDistrictId : selectedDestinationDistrictId,
-      decoration: InputDecoration(hintText: 'Selecciona un distrito'),
-      items:
-          (isOrigin ? originDistricts : destinationDistricts).map((district) {
-        return DropdownMenuItem<String>(
-          value: district[
-              'distrito'], // Usamos el nombre del distrito como valor temporal
-          child: Text(district['distrito']),
-        );
-      }).toList(),
-      onChanged: (String? value) {
-        setState(() {
-          if (isOrigin) {
-            selectedOriginDistrictId = value;
-          } else {
-            selectedDestinationDistrictId = value;
-          }
-        });
-      },
-    );
   }
 
   @override
@@ -386,7 +363,8 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
                           );
 
                           // Mostrar mensaje de éxito
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
                             content: Text('Reserva creada con éxito'),
                           ));
 
@@ -399,7 +377,8 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
                           ));
                         }
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
                           content: Text(
                               'Por favor, completa todos los campos incluyendo la fecha y la hora.'),
                         ));
