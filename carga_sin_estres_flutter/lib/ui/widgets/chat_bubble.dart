@@ -4,34 +4,37 @@ import 'package:flutter/material.dart';
 class ChatBubble extends StatelessWidget {
   final String message;
   final String time;
-  final bool isUser;
+  final String userType;
 
   const ChatBubble({
     super.key,
     required this.message,
     required this.time,
-    required this.isUser,
+    required this.userType,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool isUserMessage = userType == 'customer';
+
     return Column(
       crossAxisAlignment:
-          isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          isUserMessage ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
         Container(
           margin: const EdgeInsets.only(top: 4.0, bottom: 8.0),
           padding: const EdgeInsets.all(15.0),
           decoration: BoxDecoration(
-            color: isUser ? AppTheme.secondaryBlack : Colors.white,
+            color: isUserMessage ? AppTheme.secondaryBlack : Colors.white,
             borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(isUser ? 15.0 : 0),
-              bottomRight: Radius.circular(isUser ? 0 : 15.0),
+              bottomLeft: Radius.circular(isUserMessage ? 15.0 : 0),
+              bottomRight: Radius.circular(isUserMessage ? 0 : 15.0),
               topLeft: const Radius.circular(15.0),
               topRight: const Radius.circular(15.0),
             ),
             border: Border.all(
-              color: isUser ? Colors.transparent : AppTheme.secondaryBlack,
+              color:
+                  isUserMessage ? Colors.transparent : AppTheme.secondaryBlack,
               width: 1.0,
             ),
             boxShadow: [
@@ -46,7 +49,7 @@ class ChatBubble extends StatelessWidget {
           child: Text(
             message,
             style: TextStyle(
-              color: isUser ? Colors.white : AppTheme.secondaryBlack,
+              color: isUserMessage ? Colors.white : AppTheme.secondaryBlack,
               fontSize: 16,
             ),
           ),
@@ -54,9 +57,9 @@ class ChatBubble extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment:
-              isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+              isUserMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
           children: [
-            if (!isUser) const SizedBox(width: 4),
+            if (!isUserMessage) const SizedBox(width: 4),
             Text(
               time,
               style:
