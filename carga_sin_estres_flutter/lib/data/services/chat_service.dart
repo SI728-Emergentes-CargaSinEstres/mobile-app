@@ -25,7 +25,6 @@ class ChatService {
   }
   */
 
-  //get messages by reservation id
   Future<List<Message>> getMessagesByReservationId(int reservationId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/messages/$reservationId'),
@@ -38,5 +37,30 @@ class ChatService {
     } else {
       throw Exception('Failed to get messages: ${response.statusCode}');
     }
+  }
+
+  Future<Message> postMessageByReservationId(
+      int reservationId, String content) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/messages/$reservationId'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'content': content,
+        'userType': 'client',
+      }),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('Failed to post message: ${response.statusCode}');
+    }
+
+    final Map<String, dynamic> responseData = jsonDecode(response.body);
+
+    return Message(
+      id: responseData['id'],
+      content: responseData['content'],
+      messageDate: DateTime.parse(responseData['messageDate']),
+      userType: responseData['userType'],
+    );
   }
 }

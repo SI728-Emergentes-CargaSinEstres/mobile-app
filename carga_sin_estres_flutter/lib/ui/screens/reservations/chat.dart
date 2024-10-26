@@ -27,20 +27,17 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    // Load messages when the chat is initialized
     _loadMessages();
   }
 
   void _loadMessages() async {
     try {
-      // Fetch messages by reservation ID
       final messages =
           await _chatService.getMessagesByReservationId(widget.reservation.id);
       setState(() {
         _messages.addAll(messages);
       });
     } catch (error) {
-      // Handle error appropriately
       print('Error loading messages: $error');
     }
   }
@@ -58,18 +55,26 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void _sendMessage(String message) {
+  void _sendMessage(String message) async {
     if (message.isEmpty) return;
 
-    // TODO: Add the message sending logic
-    // _addMessageToList(message, true); // Add user's message
+    try {
+      Message newMessage = await _chatService.postMessageByReservationId(
+          widget.reservation.id, message);
 
-    _controller.clear();
+      _addMessageToList(newMessage);
+
+      _controller.clear();
+    } catch (error) {
+      print('Error sending message: $error');
+    }
   }
 
-  String _formatCurrentTime() {
-    final now = DateTime.now().toLocal();
-    return DateFormat.jm().format(now);
+  void _addMessageToList(Message message) {
+    setState(() {
+      _messages.add(message);
+      _scrollToBottom();
+    });
   }
 
   void _scrollToBottom() {

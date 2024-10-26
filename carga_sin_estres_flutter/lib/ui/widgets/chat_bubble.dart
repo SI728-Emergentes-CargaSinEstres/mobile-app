@@ -15,7 +15,7 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isUserMessage = userType == 'customer';
+    final bool isUserMessage = userType == 'client';
 
     return Column(
       crossAxisAlignment:
