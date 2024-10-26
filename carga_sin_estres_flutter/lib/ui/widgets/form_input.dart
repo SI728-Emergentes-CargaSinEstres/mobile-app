@@ -6,12 +6,15 @@ class FormInput extends StatefulWidget {
   final String labelText;
   final IconData icon;
   final TextEditingController controller;
+  final String hintText;
+
   const FormInput(
       {super.key,
       required this.inputWidth,
       required this.labelText,
       required this.icon,
-      required this.controller});
+      required this.controller,
+      required this.hintText});
 
   @override
   State<FormInput> createState() => _FormInputState();
@@ -30,6 +33,7 @@ class _FormInputState extends State<FormInput> {
             color: AppTheme.secondaryGray,
           ),
           labelText: widget.labelText,
+          hintText: widget.hintText,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(

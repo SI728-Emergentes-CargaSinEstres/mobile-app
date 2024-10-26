@@ -33,12 +33,12 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.black, // Color de fondo negro
+        color: Colors.black,
         boxShadow: [
           BoxShadow(
             color: Colors.black26,
             blurRadius: 8.0,
-            offset: Offset(0, -2), // Sombra arriba
+            offset: Offset(0, -2),
           ),
         ],
       ),

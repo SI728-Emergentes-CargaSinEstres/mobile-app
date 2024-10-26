@@ -67,7 +67,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         inputWidth: inputWidth,
                         labelText: 'Correo Electrónico',
                         icon: Icons.email,
-                        controller: _emailController),
+                        controller: _emailController,
+                        hintText: ''),
                     const SizedBox(height: 35),
                     PasswordInput(
                         inputWidth: inputWidth,
