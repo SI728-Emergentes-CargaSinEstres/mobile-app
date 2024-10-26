@@ -1,5 +1,6 @@
 import 'package:carga_sin_estres_flutter/data/models/customer.dart';
 import 'package:carga_sin_estres_flutter/data/services/customer_service.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/message_dialog.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/custom_bottom_navigation_bar.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/date_of_birth_input.dart';
@@ -163,7 +164,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: inputWidth,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/login');
+                  messageDialog(
+                      context, '¿Deseas editar tu perfil?', 'Editar Perfil',
+                      () {
+                    Navigator.pushNamed(context, '/home');
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFF5757),

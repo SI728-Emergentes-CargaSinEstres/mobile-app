@@ -20,4 +20,21 @@ class CustomerService {
       throw errorMessage;
     }
   }
+
+  Future<Customer> updateCustomerById(int id, Customer customer) async {
+    final response = await http.patch(
+      Uri.parse('$baseUrl/customers/${id.toString()}'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(customer.toJson()),
+    );
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      return Customer.fromJson(responseBody);
+    } else {
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      final errorMessage =
+          responseBody['message'] ?? 'Failed to update customer';
+      throw errorMessage;
+    }
+  }
 }
