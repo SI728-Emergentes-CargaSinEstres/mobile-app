@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:carga_sin_estres_flutter/data/models/customer.dart';
+import 'package:carga_sin_estres_flutter/data/models/customer_update.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:http/http.dart' as http;
 
@@ -21,11 +22,12 @@ class CustomerService {
     }
   }
 
-  Future<Customer> updateCustomerById(int id, Customer customer) async {
+  Future<Customer> updateCustomerById(
+      int id, CustomerUpdate customerUpdate) async {
     final response = await http.patch(
       Uri.parse('$baseUrl/customers/${id.toString()}'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(customer.toJson()),
+      body: jsonEncode(customerUpdate.toJson()),
     );
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseBody = jsonDecode(response.body);
