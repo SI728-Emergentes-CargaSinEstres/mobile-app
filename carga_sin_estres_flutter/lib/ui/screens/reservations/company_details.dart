@@ -49,6 +49,9 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
   String? selectedServiceType;
   List<String> serviceTypes = [];
 
+  bool isReserveButtonEnabled =
+      false; // Variable para controlar el estado del botón
+
   final UbigeoService _ubigeoService = UbigeoService();
 
   Future<void> _fetchCompanyServices() async {
@@ -76,6 +79,20 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
     _originAddressController.dispose();
     _destinationAddressController.dispose();
     super.dispose();
+  }
+
+  void _validateReserveButton() {
+    setState(() {
+      isReserveButtonEnabled = selectedOriginRegion != null &&
+          selectedOriginProvince != null &&
+          selectedOriginDistrictId != null &&
+          selectedDestinationRegion != null &&
+          selectedDestinationProvince != null &&
+          selectedDestinationDistrictId != null &&
+          selectedServiceType != null &&
+          startDate != null &&
+          startTime != null;
+    });
   }
 
   Future<void> _fetchRegions({required bool isOrigin}) async {
@@ -271,18 +288,19 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
 
                   if (result != null) {
                     setState(() {
-                      startDate =
-                          result['startDate']; // Asigna la fecha seleccionada
-                      startTime =
-                          result['startTime']; // Asigna la hora seleccionada
+                      startDate = result['startDate'];
+                      startTime = result['startTime'];
                     });
+                    _validateReserveButton();
                   }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryYellow,
                 ),
-                child: const Text(
-                  'Ver calendario',
+                child: Text(
+                  startDate != null && startTime != null
+                      ? '$startDate - $startTime'
+                      : 'Ver calendario',
                   style:
                       TextStyle(fontSize: 16, color: AppTheme.secondaryBlack),
                 ),
@@ -293,100 +311,110 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () async {
-                      if (selectedOriginDistrictId != null &&
-                          selectedDestinationDistrictId != null &&
-                          startDate != null &&
-                          startTime != null) {
-                        try {
-                          final int? originUbigeo = _getDistrictIdByName(
-                              selectedOriginDistrictId, originDistricts);
-                          final int? destinationUbigeo = _getDistrictIdByName(
-                              selectedDestinationDistrictId,
-                              destinationDistricts);
+                    onPressed: isReserveButtonEnabled
+                        ? () async {
+                            if (selectedOriginDistrictId != null &&
+                                selectedDestinationDistrictId != null &&
+                                startDate != null &&
+                                startTime != null) {
+                              try {
+                                final int? originUbigeo = _getDistrictIdByName(
+                                    selectedOriginDistrictId, originDistricts);
+                                final int? destinationUbigeo =
+                                    _getDistrictIdByName(
+                                        selectedDestinationDistrictId,
+                                        destinationDistricts);
 
-                          if (originUbigeo == null ||
-                              destinationUbigeo == null) {
-                            throw Exception(
-                                'No se pudo encontrar el id del distrito seleccionado.');
+                                if (originUbigeo == null ||
+                                    destinationUbigeo == null) {
+                                  throw Exception(
+                                      'No se pudo encontrar el id del distrito seleccionado.');
+                                }
+
+                                final String originAddress =
+                                    _originAddressController.text;
+                                final String destinationAddress =
+                                    _destinationAddressController.text;
+
+                                // Crear el modelo de reserva
+                                final Reservation reservation = Reservation(
+                                  ubigeoOrigin: originUbigeo,
+                                  originAddress: originAddress,
+                                  ubigeoDestination: destinationUbigeo,
+                                  destinationAddress: destinationAddress,
+                                  startDate: startDate!,
+                                  startTime: startTime!,
+                                  services:
+                                      selectedServiceType!, // Añadido el tipo de servicio seleccionado
+                                );
+
+                                // Obtener el customerId desde SharedPreferences
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                final int? customerId = prefs.getInt('userId');
+
+                                if (customerId == null || customerId == 0) {
+                                  throw Exception(
+                                      'Error: customerId no válido');
+                                }
+
+                                // Imprimir la información de la solicitud
+                                print(
+                                    'Realizando solicitud para crear reserva con los siguientes datos:');
+                                print('Customer ID: $customerId');
+                                print('Company ID: ${widget.company.id}');
+                                print('Ubigeo Origen: $originUbigeo');
+                                print('Ubigeo Destino: $destinationUbigeo');
+                                print('Dirección Origen: $originAddress');
+                                print('Dirección Destino: $destinationAddress');
+                                print('Fecha: $startDate');
+                                print('Hora: $startTime');
+
+                                // Crear la reserva
+                                final String reservationJson =
+                                    jsonEncode(reservation.toJson());
+                                print(
+                                    'JSON de la reserva que se envía al backend: $reservationJson');
+
+                                // Crear la reserva
+                                await ReservationService().createReservation(
+                                  customerId: customerId,
+                                  companyId: widget.company.id,
+                                  reservation: reservation,
+                                );
+
+                                // Mostrar mensaje de éxito
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(const SnackBar(
+                                  content: Text('Reserva creada con éxito'),
+                                ));
+
+                                // Navegar a la vista de historial de reservas
+                                Navigator.pushReplacementNamed(
+                                    context, '/history');
+                              } catch (e) {
+                                print('Error al crear la reserva: $e');
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  content:
+                                      Text('Error al crear la reserva: $e'),
+                                ));
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(const SnackBar(
+                                content: Text(
+                                    'Por favor, completa todos los campos incluyendo la fecha y la hora.'),
+                              ));
+                            }
                           }
-
-                          final String originAddress =
-                              _originAddressController.text;
-                          final String destinationAddress =
-                              _destinationAddressController.text;
-
-                          // Crear el modelo de reserva
-                          final Reservation reservation = Reservation(
-                            ubigeoOrigin: originUbigeo,
-                            originAddress: originAddress,
-                            ubigeoDestination: destinationUbigeo,
-                            destinationAddress: destinationAddress,
-                            startDate: startDate!,
-                            startTime: startTime!,
-                            services:
-                                selectedServiceType!, // Añadido el tipo de servicio seleccionado
-                          );
-
-                          // Obtener el customerId desde SharedPreferences
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          final int? customerId = prefs.getInt('userId');
-
-                          if (customerId == null || customerId == 0) {
-                            throw Exception('Error: customerId no válido');
-                          }
-
-// Imprimir la información de la solicitud
-                          print(
-                              'Realizando solicitud para crear reserva con los siguientes datos:');
-                          print('Customer ID: $customerId');
-                          print('Company ID: ${widget.company.id}');
-                          print('Ubigeo Origen: $originUbigeo');
-                          print('Ubigeo Destino: $destinationUbigeo');
-                          print('Dirección Origen: $originAddress');
-                          print('Dirección Destino: $destinationAddress');
-                          print('Fecha: $startDate');
-                          print('Hora: $startTime');
-
-// Crear la reserva
-                          final String reservationJson =
-                              jsonEncode(reservation.toJson());
-                          print(
-                              'JSON de la reserva que se envía al backend: $reservationJson');
-
-                          // Crear la reserva
-                          await ReservationService().createReservation(
-                            customerId: customerId,
-                            companyId: widget.company.id,
-                            reservation: reservation,
-                          );
-
-                          // Mostrar mensaje de éxito
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(const SnackBar(
-                            content: Text('Reserva creada con éxito'),
-                          ));
-
-                          // Navegar a la vista de historial de reservas
-                          Navigator.pushReplacementNamed(context, '/history');
-                        } catch (e) {
-                          print('Error al crear la reserva: $e');
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text('Error al crear la reserva: $e'),
-                          ));
-                        }
-                      } else {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(
-                          content: Text(
-                              'Por favor, completa todos los campos incluyendo la fecha y la hora.'),
-                        ));
-                      }
-                    },
+                        : null,
                     style: ElevatedButton.styleFrom(
-                        foregroundColor: AppTheme.secondaryBlack,
-                        backgroundColor: AppTheme.secondaryGray2),
+                      foregroundColor: AppTheme.secondaryBlack,
+                      backgroundColor: isReserveButtonEnabled
+                          ? AppTheme.primaryYellow
+                          : AppTheme.secondaryGray2,
+                    ),
                     child:
                         const Text('Reservar', style: TextStyle(fontSize: 16)),
                   ),
