@@ -2,6 +2,7 @@ import 'package:carga_sin_estres_flutter/data/services/time_block_service.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 class ScheduleScreen extends StatefulWidget {
@@ -17,7 +18,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   List<String> availableHours = [];
   String? selectedHour; // Cambiado para que solo se permita una selección
   DateTime selectedDate = DateTime.now();
-  String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  String formattedDate = '';
+
   bool isLoading = true;
 
   final TimeBlockService _timeBlockService = TimeBlockService();
@@ -25,7 +27,13 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchTimeBlock(); // Obtiene el bloque de tiempo de la empresa
+    initializeDateFormatting('es_ES', null).then((_) {
+      setState(() {
+        formattedDate = DateFormat('EEE d \'de\' MMMM \'del\' yyyy', 'es_ES')
+            .format(selectedDate);
+      });
+      _fetchTimeBlock(); // Obtiene el bloque de tiempo de la empresa después de inicializar la configuración regional
+    });
   }
 
   // Método para obtener el bloque de tiempo de la empresa
@@ -87,7 +95,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     if (pickedDate != null && pickedDate != selectedDate) {
       setState(() {
         selectedDate = pickedDate;
-        formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
+        formattedDate = DateFormat('EEE d \'de\' MMMM \'del\' yyyy', 'es_ES')
+            .format(pickedDate);
         selectedHour = null; // Deseleccionar horarios al cambiar de fecha
         _fetchTimeBlock(); // Volver a cargar los horarios para la nueva fecha
       });
@@ -98,7 +107,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   void _nextDay() {
     setState(() {
       selectedDate = selectedDate.add(const Duration(days: 1));
-      formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+      formattedDate = DateFormat('EEE d \'de\' MMMM \'del\' yyyy', 'es_ES')
+          .format(selectedDate);
       selectedHour = null; // Deseleccionar horarios al avanzar de día
       _fetchTimeBlock(); // Volver a cargar los horarios para la nueva fecha
     });
@@ -109,7 +119,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     if (selectedDate.isAfter(DateTime.now())) {
       setState(() {
         selectedDate = selectedDate.subtract(const Duration(days: 1));
-        formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+        formattedDate = DateFormat('EEE d \'de\' MMMM \'del\' yyyy', 'es_ES')
+            .format(selectedDate);
         selectedHour = null; // Deseleccionar horarios al retroceder de día
         _fetchTimeBlock(); // Volver a cargar los horarios para la nueva fecha
       });
@@ -235,10 +246,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               formattedDate,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontSize: 24, // Tamaño más grande
+                fontSize: 20, // Tamaño más pequeño
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
+              maxFontSize: 20,
+              minFontSize: 14, // Permite reducir el tamaño si es necesario
               maxLines: 1,
             ),
           ),
