@@ -18,7 +18,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   List<String> availableHours = [];
   String? selectedHour; // Cambiado para que solo se permita una selección
   DateTime selectedDate = DateTime.now();
-  String formattedDate = '';
+  String formattedDate = ''; // Formato para mostrar
+  String queryDate = ''; // Formato para enviar
 
   bool isLoading = true;
 
@@ -30,7 +31,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     initializeDateFormatting('es_ES', null).then((_) {
       setState(() {
         formattedDate = DateFormat('EEE d \'de\' MMMM \'del\' yyyy', 'es_ES')
-            .format(selectedDate);
+            .format(selectedDate); // Formato de visualización
+        queryDate =
+            DateFormat('yyyy-MM-dd').format(selectedDate); // Formato de envío
       });
       _fetchTimeBlock(); // Obtiene el bloque de tiempo de la empresa después de inicializar la configuración regional
     });
@@ -96,7 +99,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       setState(() {
         selectedDate = pickedDate;
         formattedDate = DateFormat('EEE d \'de\' MMMM \'del\' yyyy', 'es_ES')
-            .format(pickedDate);
+            .format(pickedDate); // Formato para mostrar
+        queryDate =
+            DateFormat('yyyy-MM-dd').format(pickedDate); // Formato para enviar
         selectedHour = null; // Deseleccionar horarios al cambiar de fecha
         _fetchTimeBlock(); // Volver a cargar los horarios para la nueva fecha
       });
@@ -108,7 +113,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     setState(() {
       selectedDate = selectedDate.add(const Duration(days: 1));
       formattedDate = DateFormat('EEE d \'de\' MMMM \'del\' yyyy', 'es_ES')
-          .format(selectedDate);
+          .format(selectedDate); // Formato para mostrar
+      queryDate =
+          DateFormat('yyyy-MM-dd').format(selectedDate); // Formato para enviar
       selectedHour = null; // Deseleccionar horarios al avanzar de día
       _fetchTimeBlock(); // Volver a cargar los horarios para la nueva fecha
     });
@@ -120,7 +127,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       setState(() {
         selectedDate = selectedDate.subtract(const Duration(days: 1));
         formattedDate = DateFormat('EEE d \'de\' MMMM \'del\' yyyy', 'es_ES')
-            .format(selectedDate);
+            .format(selectedDate); // Formato para mostrar
+        queryDate = DateFormat('yyyy-MM-dd')
+            .format(selectedDate); // Formato para enviar
         selectedHour = null; // Deseleccionar horarios al retroceder de día
         _fetchTimeBlock(); // Volver a cargar los horarios para la nueva fecha
       });
@@ -182,7 +191,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       onPressed: () {
                         if (selectedHour != null) {
                           Navigator.pop(context, {
-                            'startDate': formattedDate,
+                            'startDate': queryDate, // Formato para enviar
                             'startTime': selectedHour,
                           });
                         } else {
