@@ -1,7 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    // Verifica el estado de login almacenado en SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userEmail = prefs.getString('userEmail');
+
+    // Si hay un email almacenado, redirige a la pantalla principal
+    if (userEmail != null) {
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      // Si no, muestra el botón para iniciar sesión
+      Future.delayed(const Duration(seconds: 3), () {
+        Navigator.pushReplacementNamed(context, '/login');
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +64,7 @@ class SplashScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 30),
+              // El botón no será necesario si el usuario ya está logueado
               ElevatedButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/login');
