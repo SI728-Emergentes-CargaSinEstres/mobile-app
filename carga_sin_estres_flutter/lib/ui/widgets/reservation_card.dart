@@ -1,3 +1,4 @@
+import 'package:carga_sin_estres_flutter/data/models/company.dart';
 import 'package:carga_sin_estres_flutter/data/models/contract.dart';
 import 'package:carga_sin_estres_flutter/data/models/reservation.dart';
 import 'package:carga_sin_estres_flutter/data/services/contract_service.dart';
@@ -7,6 +8,7 @@ import 'package:carga_sin_estres_flutter/data/services/company_service.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/reservations/chat.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/delete_dialog.dart';
 import 'package:carga_sin_estres_flutter/ui/widgets/message_dialog.dart';
+import 'package:carga_sin_estres_flutter/ui/widgets/report_company_dialog.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -24,6 +26,7 @@ class _ReservationCardState extends State<ReservationCard> {
   bool _isDetailsExpanded = false;
   bool _isRatingExpanded = false;
   Contract? _contract;
+  Company? _company;
   int? _rating;
   final RatingService _ratingService = RatingService();
   final CompanyService _companyService = CompanyService();
@@ -35,6 +38,19 @@ class _ReservationCardState extends State<ReservationCard> {
   void initState() {
     super.initState();
     _fetchContract();
+    _fetchCompanyByName();
+  }
+
+  void _fetchCompanyByName() async {
+    try {
+      final fetchedCompany = await _companyService
+          .getCompanyByName(widget.reservation.companyName);
+      setState(() {
+        _company = fetchedCompany;
+      });
+    } catch (e) {
+      print('Error fetching company: $e');
+    }
   }
 
   void _fetchContract() async {
@@ -296,6 +312,36 @@ class _ReservationCardState extends State<ReservationCard> {
                   ),
                 ),
               ],
+
+              // ---------- Reportar infracción de empresa, solo visible si el estado está en 'in progress'
+              if (widget.reservation.status == 'in progress') ...[
+                const SizedBox(height: 16.0),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () async {
+                      reportCompanyDialog(context, () async {
+                        try {
+                          await _historyService.updateReservationStatus(
+                            widget.reservation.id,
+                            'cancelled',
+                          );
+                        } catch (error) {
+                          print('Error updating reservation status: $error');
+                        }
+                      }, _company?.id ?? -1);
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      side: BorderSide.none,
+                    ),
+                    child: const Text(
+                      'Reportar infracción de empresa',
+                      style: TextStyle(color: AppTheme.secondaryRed),
+                    ),
+                  ),
+                ),
+              ],
               const Divider(height: 24.0, thickness: 1.0),
             ],
 
@@ -393,10 +439,8 @@ class _ReservationCardState extends State<ReservationCard> {
                   onPressed: () async {
                     if (_rating != null) {
                       try {
-                        final company = await _companyService
-                            .getCompanyByName(widget.reservation.companyName);
                         await _ratingService.postRatingByCompanyId(
-                          company.id,
+                          _company?.id ?? -1,
                           _rating!,
                         );
                         print('Rating enviado: $_rating');

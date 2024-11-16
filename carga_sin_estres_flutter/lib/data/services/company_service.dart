@@ -37,19 +37,28 @@ class CompanyService {
     }
   }
 
-  //get company by name
   Future<Company> getCompanyByName(String name) async {
+    // Construct the URI with the name query parameter
+    final uri = Uri.parse('$baseUrl/companiesByName')
+        .replace(queryParameters: {'name': name});
+
+    // Log the URI for debugging
+    print('Request URI: $uri');
+
     final response = await http.get(
-      Uri.parse('$baseUrl/companiesByName'),
+      uri,
       headers: {'Content-Type': 'application/json'},
     );
+
     if (response.statusCode == 200) {
+      // Parse the JSON response and return the Company object
       final Map<String, dynamic> responseBody = jsonDecode(response.body);
       return Company.fromJson(responseBody);
     } else {
+      // Handle errors
       final Map<String, dynamic> responseBody = jsonDecode(response.body);
       final errorMessage = responseBody['message'] ?? 'Failed to get company';
-      throw errorMessage;
+      throw Exception(errorMessage);
     }
   }
 }
