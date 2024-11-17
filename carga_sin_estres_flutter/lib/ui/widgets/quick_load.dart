@@ -1,5 +1,5 @@
+import 'package:carga_sin_estres_flutter/ui/screens/reservations/history.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
-import 'package:carga_sin_estres_flutter/ui/widgets/quick_load_dialog.dart';
 import 'package:flutter/material.dart';
 
 class QuickLoad extends StatelessWidget {
@@ -21,7 +21,7 @@ class QuickLoad extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Carga Rápida',
+                  'Mudanzas Seguras',
                   style: TextStyle(
                     color: AppTheme.primaryYellow,
                     fontSize: 24.0,
@@ -30,7 +30,7 @@ class QuickLoad extends StatelessWidget {
                 ),
                 const SizedBox(height: 8.0),
                 const Text(
-                  '¿Lo necesitas para hoy? Pulsa el botón y las empresas te contactarán',
+                  '¿Necesitas los detalles de los servicios que solicitaste?',
                   style: TextStyle(
                     color: AppTheme.primaryWhite,
                     fontSize: 14.0,
@@ -47,10 +47,14 @@ class QuickLoad extends StatelessWidget {
                         horizontal: 24.0, vertical: 6.0),
                   ),
                   onPressed: () {
-                    quickLoadDialog(context, 'xx', 'yy', () {});
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const HistoryScreen(),
+                      ),
+                    );
                   },
                   child: const Text(
-                    'Solicitar servicio',
+                    'Ver mis solicitudes',
                     style: TextStyle(
                       color: Colors.black87,
                       fontSize: 16.0,

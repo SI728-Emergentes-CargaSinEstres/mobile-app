@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:carga_sin_estres_flutter/data/models/reservation_model.dart';
+import 'package:carga_sin_estres_flutter/data/services/business_rules_service.dart';
 import 'package:carga_sin_estres_flutter/data/services/reservation_service.dart';
 import 'package:carga_sin_estres_flutter/data/services/ubigeo_service.dart';
 import 'package:carga_sin_estres_flutter/ui/screens/reservations/schedule_screen.dart';
@@ -48,37 +49,54 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
 
   String? selectedServiceType;
   List<String> serviceTypes = [];
+  int _companyViolationCount = 0;
 
   bool isReserveButtonEnabled =
       false; // Variable para controlar el estado del botón
 
   final UbigeoService _ubigeoService = UbigeoService();
-
-  Future<void> _fetchCompanyServices() async {
-    try {
-      // Obtener los servicios desde la empresa seleccionada
-      setState(() {
-        serviceTypes = widget.company.services.map((s) => s.name).toList();
-      });
-    } catch (error) {
-      print('Error al obtener los servicios de la empresa: $error');
-    }
-  }
+  final BusinessRulesService businessRulesService = BusinessRulesService();
 
   @override
   void initState() {
     super.initState();
     _fetchRegions(isOrigin: true);
     _fetchRegions(isOrigin: false);
-    _fetchCompanyServices(); // Nueva línea para obtener los tipos de servicios
+    _fetchCompanyServices();
+    _fetchCompanyViolationServiceByCompanyIdAndYear();
   }
 
   @override
   void dispose() {
-    // Limpia los controladores cuando el widget se destruye
     _originAddressController.dispose();
     _destinationAddressController.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchCompanyViolationServiceByCompanyIdAndYear() async {
+    try {
+      final int companyId = widget.company.id;
+      final int year = DateTime.now().year;
+      final int companyViolationCount = await businessRulesService
+          .getCompanyViolationServiceByCompanyIdAndYear(companyId, year);
+      _companyViolationCount = companyViolationCount;
+    } catch (e) {
+      print('Error al obtener el conteo de violaciones de la empresa: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content:
+            Text('Error al obtener el conteo de violaciones de la empresa: $e'),
+      ));
+    }
+  }
+
+  Future<void> _fetchCompanyServices() async {
+    try {
+      setState(() {
+        serviceTypes = widget.company.services.map((s) => s.name).toList();
+      });
+    } catch (error) {
+      print('Error al obtener los servicios de la empresa: $error');
+    }
   }
 
   void _validateReserveButton() {
@@ -528,6 +546,22 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
               widget.company.services.isNotEmpty
                   ? widget.company.services.map((s) => s.name).join(', ')
                   : 'No hay servicios disponibles',
+              style:
+                  const TextStyle(fontSize: 16, color: AppTheme.secondaryBlack),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Reservas contratadas sin completar en 2024:',
+              style: TextStyle(
+                  fontSize: 16, color: Color.fromARGB(255, 113, 109, 109)),
+            ),
+            Text(
+              _companyViolationCount.toString(),
               style:
                   const TextStyle(fontSize: 16, color: AppTheme.secondaryBlack),
             ),
