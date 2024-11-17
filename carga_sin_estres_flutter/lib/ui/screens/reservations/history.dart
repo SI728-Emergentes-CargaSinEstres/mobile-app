@@ -33,7 +33,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         final fetchedReservations =
             await historyService.getReservationsByCustomerId(userId!);
         setState(() {
-          reservations = fetchedReservations;
+          reservations = fetchedReservations; // Mantén todas las reservas
         });
       } catch (e) {
         print("Error: $e");
@@ -135,7 +135,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     itemCount: _filteredReservations().length,
                     itemBuilder: (context, index) {
                       final reservation = _filteredReservations()[index];
-                      return ReservationCard(reservation: reservation);
+                      return ReservationCard(
+                        reservation: reservation,
+                        onRated: () {
+                          _fetchReservations(); // Recarga la lista actualizada
+                        },
+                      );
                     },
                   ),
           ),

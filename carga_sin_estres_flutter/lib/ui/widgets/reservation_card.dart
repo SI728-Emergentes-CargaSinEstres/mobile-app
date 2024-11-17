@@ -12,11 +12,14 @@ import 'package:carga_sin_estres_flutter/ui/widgets/report_company_dialog.dart';
 import 'package:carga_sin_estres_flutter/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ReservationCard extends StatefulWidget {
   final Reservation reservation;
+  final VoidCallback onRated; // Nuevo callback
 
-  const ReservationCard({super.key, required this.reservation});
+  const ReservationCard(
+      {super.key, required this.reservation, required this.onRated});
 
   @override
   State<ReservationCard> createState() => _ReservationCardState();
@@ -25,6 +28,8 @@ class ReservationCard extends StatefulWidget {
 class _ReservationCardState extends State<ReservationCard> {
   bool _isDetailsExpanded = false;
   bool _isRatingExpanded = false;
+  bool _isRated = false; // Nueva variable
+
   Contract? _contract;
   Company? _company;
   int? _rating;
@@ -39,12 +44,39 @@ class _ReservationCardState extends State<ReservationCard> {
     super.initState();
     _fetchContract();
     _fetchCompanyByName();
+    _checkIfRated();
+  }
+
+  Future<void> _checkIfRated() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ratedReservations = prefs.getStringList('ratedReservations') ?? [];
+    if (!mounted) return;
+    setState(() {
+      _isRated = ratedReservations.contains(widget.reservation.id.toString());
+      _isRatingExpanded = !_isRated;
+    });
+  }
+
+  Future<void> _saveRatedReservation(String reservationId) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> ratedReservations =
+        prefs.getStringList('ratedReservations') ?? [];
+    if (!ratedReservations.contains(reservationId)) {
+      ratedReservations.add(reservationId);
+      await prefs.setStringList('ratedReservations', ratedReservations);
+    }
+    setState(() {
+      _isRated = true;
+      _isRatingExpanded = false;
+    });
+    widget.onRated();
   }
 
   void _fetchCompanyByName() async {
     try {
       final fetchedCompany = await _companyService
           .getCompanyByName(widget.reservation.companyName);
+      if (!mounted) return; // Verifica si el widget está montado
       setState(() {
         _company = fetchedCompany;
       });
@@ -61,12 +93,14 @@ class _ReservationCardState extends State<ReservationCard> {
       try {
         final fetchedContract = await _contractService
             .getContractByReservationId(widget.reservation.id);
+        if (!mounted) return; // Verifica si el widget está montado
         setState(() {
           _contract = fetchedContract;
         });
       } catch (e) {
         print('Error fetching contract: $e');
       } finally {
+        if (!mounted) return; // Verifica si el widget está montado
         setState(() {
           _isLoadingContract = false;
         });
@@ -406,6 +440,7 @@ class _ReservationCardState extends State<ReservationCard> {
             ],
 
             // ---------- Calificar servicio, solo visible si el estado es 'finalized'
+            // ---------- Calificar servicio, solo visible si _isRatingExpanded es true
             if (_isRatingExpanded &&
                 widget.reservation.status == 'finalized') ...[
               const SizedBox(height: 8.0),
@@ -443,13 +478,29 @@ class _ReservationCardState extends State<ReservationCard> {
                           _company?.id ?? -1,
                           _rating!,
                         );
-                        print('Rating enviado: $_rating');
+
+                        // Guarda la reserva calificada y oculta la opción
+                        await _saveRatedReservation(
+                            widget.reservation.id.toString());
+
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text('Calificación enviada exitosamente.'),
+                            ),
+                          );
+                        }
                       } catch (e) {
                         print('Error: $e');
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text('Error al enviar calificación: $e')),
+                          );
+                        }
                       }
-                      setState(() {
-                        _rating = null;
-                      });
                     }
                   },
                   child: const Text('Enviar'),
@@ -468,7 +519,7 @@ class _ReservationCardState extends State<ReservationCard> {
                     _isRatingExpanded = false;
                   });
                 }),
-                if (widget.reservation.status == 'finalized')
+                if (widget.reservation.status == 'finalized' && !_isRated)
                   _buildActionButton(Icons.star, 'Calificar servicio', () {
                     setState(() {
                       _isRatingExpanded = !_isRatingExpanded;
@@ -492,6 +543,13 @@ class _ReservationCardState extends State<ReservationCard> {
         ),
       ),
     );
+  }
+
+  Future<bool> _isReservationRated(String reservationId) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> ratedReservations =
+        prefs.getStringList('ratedReservations') ?? [];
+    return ratedReservations.contains(reservationId);
   }
 
   Widget _buildLocationIcon(Color color) {
